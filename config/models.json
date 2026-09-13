@@ -1,7 +1,7 @@
 {
   "criteria": {
     "fuelAllow": ["benzin"],
-    "yearMin": 2020,
+    "yearMin": 2017,
     "priceMax": 23000,
     "mileageMax": 93000,
     "bodyTypes": ["limuzina", "suv"]
