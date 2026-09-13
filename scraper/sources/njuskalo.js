@@ -4,6 +4,8 @@ export const id = 'njuskalo'
 export const label = 'Njuškalo'
 
 const BASE = 'https://www.njuskalo.hr'
+
+export const coverage = ['HR']
 const CARS_PATH = '/auti'
 
 // Njuškalo stoji iza bot-zaštite koja prati ponašanje, ne samo zaglavlja. Zato: velik razmak
@@ -116,6 +118,7 @@ function toListing(ad, fuel) {
     sellerType: ad.isOwnerResidentialSeller ? 'privatno' : 'salon',
     sellerName: ad.owner?.profileName ?? ad.owner?.userName ?? null,
     bodyType: highlights.bodyType ?? null,
+    country: 'HR',
     make: highlights.manufacturer ?? null,
     model: highlights.model ?? null,
     // Opis stoji samo na stranici oglasa, a to je jedan zahtjev po oglasu — previše za izvor

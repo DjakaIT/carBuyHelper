@@ -5,8 +5,11 @@ export const label = 'AutoScout24'
 
 const BASE = 'https://www.autoscout24.com'
 
-// AutoScout24 pokriva zapadnu Europu (D, A, B, E, F, I, L, NL) — za nas je to uvozno tržište.
-const DEFAULT_COUNTRIES = ['D', 'A']
+// AutoScout24 pokriva zapadnu Europu; hrvatskog tržišta nema, pa se ovaj izvor uopće ne
+// otvara dok se u kriterijima ne uključi neka od ovih država.
+const MARKETS = { DE: 'D', AT: 'A', BE: 'B', ES: 'E', FR: 'F', IT: 'I', LU: 'L', NL: 'NL' }
+
+export const coverage = Object.keys(MARKETS)
 
 // Rezultata je previše da bi se prolazili do kraja (npr. 11.000 T-Rocova); posao je
 // pokupiti nove oglase, a oni su pri sortiranju po starosti oglasa na prvim stranicama.
@@ -44,7 +47,7 @@ function buildUrl(config, settings, make, model, page) {
     fregfrom: String(config.criteria.yearMin),
     sort: 'age',
     desc: '1',
-    cy: (settings.countries ?? DEFAULT_COUNTRIES).join(','),
+    cy: config.criteria.countries.map((code) => MARKETS[code]).filter(Boolean).join(','),
     page: String(page),
   })
   if (config.criteria.priceMax != null) {
@@ -88,6 +91,7 @@ function toListing(ad) {
     title: title(vehicle),
     sellerType: ad.seller?.type === 'Dealer' ? 'salon' : ad.seller?.type === 'Private' ? 'privatno' : null,
     sellerName: ad.seller?.companyName ?? null,
+    country: location?.countryCode ?? null,
     make: vehicle.make ?? null,
     model: vehicle.modelGroup ?? null,
     // Lista ne nosi opis oglasa, a detalj bi značio jedan zahtjev po oglasu (vidi DECISIONS.md).

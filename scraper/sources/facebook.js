@@ -5,6 +5,8 @@ export const label = 'Facebook Marketplace'
 
 const BASE = 'https://www.facebook.com'
 
+export const coverage = ['HR']
+
 // Marketplace ne radi bez prijave. Sesija stoji lokalno u pregledničkom profilu (vidi
 // `npm run facebook:login`) i nikad ne izlazi iz ovog računala — zato ovaj izvor ne smije
 // raditi u CI-u ni na tuđem serveru.
@@ -102,6 +104,7 @@ function parseCard(card, make, model) {
     sellerType: null,
     sellerName: null,
     bodyType: null,
+    country: 'HR',
     description: null,
     price: number(price),
     year: year ? Number(year) : null,

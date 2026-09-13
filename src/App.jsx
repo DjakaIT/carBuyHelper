@@ -12,10 +12,12 @@ const OPENED_AT = Date.now()
 const VISIT_KEY = 'autoradar:lastVisit'
 
 const numbers = new Intl.NumberFormat('hr-HR', { maximumFractionDigits: 0 })
+const countryNames = new Intl.DisplayNames(['hr'], { type: 'region' })
 
 function describeCriteria(criteria) {
   if (!criteria) return ''
   return [
+    criteria.countries?.map((code) => countryNames.of(code) ?? code).join(' i '),
     criteria.fuelAllow?.join(' ili '),
     criteria.yearMin && `godište ${criteria.yearMin}+`,
     criteria.priceMax && `do ${numbers.format(criteria.priceMax)} €`,
@@ -70,6 +72,7 @@ export default function App() {
     () => ({
       sources: [...new Set(listings.map((listing) => listing.source))].sort(),
       models: [...new Set(listings.map((listing) => listing.model).filter(Boolean))].sort(),
+      countries: [...new Set(listings.map((listing) => listing.country).filter(Boolean))].sort(),
     }),
     [listings],
   )

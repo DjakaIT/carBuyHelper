@@ -139,3 +139,14 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 
 - **Njuškalo preko Apify actora je bilo integrirano pa uklonjeno, na zahtjev vlasnika.** Tehnički je radilo kako treba (actor prima našu search stranicu, kriteriji ostaju u configu), ali uvodi vanjsku ovisnost, tuđi račun i trošak po dohvaćenom oglasu. Ne predlagati ponovno bez izričitog traženja.
 - **Njuškalo time ostaje na izravnom dohvatu**, koji njihova bot-zaštita trenutno blokira. Dok blokada traje, taj izvor svaki dan uredno javi da je preskočen i ne ruši ostale. Put naprijed, ako zatreba, je spremljena pretraga + email alert (traži primjer njihovog maila).
+
+## 2026-09-13 — Države i Auti.hr
+
+- **`criteria.countries` je novi kriterij, zadano `["HR"]`.** Sve ostalo (Slovenija, BiH, Njemačka…) pojavljuje se tek kad se dopiše u config.
+- **Izvor se ne otvara ako ne pokriva nijednu traženu državu.** Svaki modul objavljuje `coverage`; AutoScout24 pokriva D/A/B/E/F/I/L/NL i hrvatskog tržišta nema, pa se uz zadane postavke uopće ne dohvaća. Time nema ni nepotrebnih zahtjeva ni oglasa koje bi filtar ionako odbacio.
+- **Uz to se filtrira i svaki pojedini oglas.** Hrvatski portali nose i ponudu stranih salona (Index ih ima; u zadnjem dohvatu 3 takva su odbačena), pa država oglasa odlučuje, ne država portala.
+- **Filtar država u sučelju pojavljuje se tek kad u podacima postoji više od jedne.** Dok je uključena samo Hrvatska, chipovi ne zauzimaju mjesto.
+- **Dodan izvor Auti.hr.** Njihova tražilica prima POST, ali odgovara preusmjeravanjem na čitljiv URL sastavljen od slugova (`/trazi/kategorija/automobili/marka/vw/vrsta-goriva/benzin/godina-proizvodnje/2020-2027/cijena/0-23000-EUR/kilometraza/0-93000/`), pa se taj URL slaže odmah i dohvaća GET-om.
+- **Kod njih se model ne može filtrirati na izvoru.** Slug `model/octavia` se tiho ignorira (vraća Karoq, Kodiaq, Fabiju), pa se model prosijava lokalno. Isto vrijedi za nepoznat slug marke — vrati sve marke umjesto greške, zato se svaki oglas provjerava po marki i modelu prije spremanja.
+- **Marka se u njihovim naslovima piše skraćeno ("VW"), model s razmakom umjesto crtice ("T Cross"), a naslov ne počinje uvijek markom ("Prodajem Nissan Qashqai…").** Usporedba zato izjednačava crtice i razmake, poznaje skraćenice i traži naziv bilo gdje u naslovu.
+- **Lokacija (županija) stoji samo na stranici oglasa i ne uvijek.** Dohvaća se jednim zahtjevom po novom oglasu; kad je nema, ostaje prazna umjesto da se pogađa.

@@ -52,6 +52,7 @@ const rows = db
   .prepare(
     `
   select source_id, external_id, url, title, make, model, seller_type, seller_name, body_type,
+         country,
          description, price, year, mileage,
          fuel, location, image_url, posted_at, first_seen_at
   from listings
@@ -73,6 +74,7 @@ const listings = rows.map((row) => {
   sellerType: row.seller_type,
   sellerName: row.seller_name,
   bodyType: row.body_type,
+  country: row.country,
     excerpt: excerpt(row.description),
     price: row.price,
     year: row.year,

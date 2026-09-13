@@ -2,6 +2,20 @@ import { useEffect, useRef } from 'react'
 import { EMPTY_FILTERS, SORT_OPTIONS, isFiltered } from '../lib/filter.js'
 import { sourceLabel } from '../lib/sources.js'
 
+const COUNTRY_LABELS = {
+  HR: 'Hrvatska',
+  SI: 'Slovenija',
+  BA: 'BiH',
+  DE: 'Njemačka',
+  AT: 'Austrija',
+  IT: 'Italija',
+  NL: 'Nizozemska',
+  BE: 'Belgija',
+  FR: 'Francuska',
+  ES: 'Španjolska',
+  LU: 'Luksemburg',
+}
+
 function Toggle({ pressed, onClick, children, source }) {
   return (
     <button
@@ -66,6 +80,20 @@ export default function Filters({ facets, filters, onChange, shown, total }) {
             </Toggle>
           ))}
         </div>
+
+        {facets.countries.length > 1 && (
+          <div className="chips" role="group" aria-label="Država">
+            {facets.countries.map((country) => (
+              <Toggle
+                key={country}
+                pressed={filters.countries.includes(country)}
+                onClick={() => toggle('countries', country)}
+              >
+                {COUNTRY_LABELS[country] ?? country}
+              </Toggle>
+            ))}
+          </div>
+        )}
 
         <div className="chips" role="group" aria-label="Prodavač">
           {['salon', 'privatno'].map((type) => (

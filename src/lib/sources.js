@@ -3,6 +3,7 @@ export const SOURCE_LABELS = {
   autoscout24: 'AutoScout24',
   njuskalo: 'Njuškalo',
   autokatalog: 'AutoKatalog',
+  'auti-hr': 'Auti.hr',
   facebook: 'Facebook',
 }
 

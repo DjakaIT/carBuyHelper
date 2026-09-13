@@ -4,13 +4,20 @@ Osobni agregator oglasa rabljenih automobila. Jednom dnevno pokupi nove oglase p
 
 Specifikacija i pravila rada: [CLAUDE.md](CLAUDE.md). Donesene odluke: [DECISIONS.md](DECISIONS.md).
 
+## Države
+
+Zadano se dohvaća samo Hrvatska (`criteria.countries: ["HR"]`). Dopisivanjem oznake (`SI`, `BA`,
+`DE`, `AT`…) uključuje se ta država: izvori koji je pokrivaju tada se sami uključe, a u sučelju se
+pojavi filtar država. Dok je uključena samo jedna država, tog filtra nema.
+
 ## Izvori
 
 | Izvor | Stanje |
 | --- | --- |
 | Index oglasi | radi — puni podaci s opisom |
 | AutoKatalog | radi — samo registrirane hrvatske autokuće, link vodi na salon |
-| AutoScout24 | radi — Njemačka i Austrija, bez opisa |
+| Auti.hr | radi — hrvatski portal; model se prosijava lokalno jer ga njihova tražilica ignorira |
+| AutoScout24 | radi, ali uz zadane postavke miruje: pokriva D/A/B/E/F/I/L/NL, a traži se samo Hrvatska |
 | Njuškalo | modul napisan, ali njihova bot-zaštita blokira ovaj IP (vidi DECISIONS.md) |
 | Facebook Marketplace | radi uz jednokratnu prijavu: `npm run facebook:login`, pa `enabled: true` u configu |
 | mobile.de | blokira već prvi zahtjev; ide preko email alerta (vidi TODO.md) |

@@ -74,17 +74,20 @@ async function loadModels(models) {
   return { ids, names }
 }
 
-async function loadPlaceNames() {
+async function loadPlaces() {
   const datasets = await api('/configuration/datasource/location')
   const names = new Map()
-  const walk = (nodes) => {
+  const countryCodes = new Map()
+
+  const walk = (nodes, isRoot) => {
     for (const node of nodes ?? []) {
       names.set(node.id, node.name)
-      walk(node.children)
+      if (isRoot && node.countryCode) countryCodes.set(node.id, node.countryCode)
+      walk(node.children, false)
     }
   }
-  for (const dataset of datasets) walk(dataset.source)
-  return names
+  for (const dataset of datasets) walk(dataset.source, true)
+  return { names, countryCodes }
 }
 
 function buildSearchParams(config, modelIds) {
@@ -127,10 +130,10 @@ function placeName(placeNames, ...ids) {
   return null
 }
 
-function toListing(ad, placeNames, names) {
+function toListing(ad, places, names) {
   const images = ad.images ?? []
   const gallery = images.map((image) => `${API}/image/direct/${image}`)
-  const place = placeName(placeNames, ad.cityId, ad.settlementId, ad.countyId, ad.countryId)
+  const place = placeName(places.names, ad.cityId, ad.settlementId, ad.countyId, ad.countryId)
 
   return {
     sourceId: id,
@@ -140,6 +143,7 @@ function toListing(ad, placeNames, names) {
     sellerType: ad.legalEntity === 2 ? 'salon' : ad.legalEntity === 1 ? 'privatno' : null,
     sellerName: null,
     bodyType: BODY_LABELS[ad.vehicleBodyType] ?? null,
+    country: places.countryCodes.get(ad.countryId) ?? null,
     make: names.get(ad.makeId) ?? null,
     model: names.get(ad.modelId) ?? null,
     description: ad.description ?? null,
@@ -187,12 +191,12 @@ export async function fetchListings(config, { isSeen = () => false } = {}) {
 
   if (newAdCodes.length === 0) return { listings: [], prices, matched, known }
 
-  const placeNames = await loadPlaceNames()
+  const places = await loadPlaces()
   const listings = []
   for (const code of newAdCodes) {
     const result = await api(`/aditem/single-ad?code=${code}`)
     const ad = result.data?.[0]
-    if (ad) listings.push(toListing(ad, placeNames, names))
+    if (ad) listings.push(toListing(ad, places, names))
   }
 
   return { listings, prices, matched, known }

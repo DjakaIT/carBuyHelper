@@ -46,6 +46,9 @@ function validate(config, path) {
   if (!Number.isInteger(criteria.yearMin)) {
     fail('"criteria.yearMin" mora biti cijeli broj')
   }
+  if (!Array.isArray(criteria.countries) || criteria.countries.length === 0) {
+    fail('"criteria.countries" mora biti neprazan niz oznaka država (npr. ["HR"])')
+  }
   if (criteria.priceMax != null && !Number.isInteger(criteria.priceMax)) {
     fail('"criteria.priceMax" mora biti cijeli broj ili izostavljen')
   }

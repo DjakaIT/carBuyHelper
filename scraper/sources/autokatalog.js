@@ -5,6 +5,8 @@ export const label = 'AutoKatalog'
 
 const BASE = 'https://www.autokatalog.hr'
 
+export const coverage = ['HR']
+
 // Agregator ponude registriranih hrvatskih autokuća — nema privatnih oglašivača, pa je
 // sve odavde "salon". Oglas vodi na stranicu same autokuće.
 const RSC_MARK = 'self.__next_f.push([1,'
@@ -75,6 +77,7 @@ function toListing(vehicle) {
     sellerType: 'salon',
     sellerName: dealerFrom(vehicle.externalUrl),
     bodyType: null,
+    country: 'HR',
     description: null,
     price: Number.isFinite(price) ? Math.round(price) : null,
     year: vehicle.year ?? null,

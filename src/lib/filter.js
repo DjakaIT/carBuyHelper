@@ -30,6 +30,7 @@ export const EMPTY_FILTERS = {
   query: '',
   sources: [],
   sellerTypes: [],
+  countries: [],
   models: [],
   priceMax: '',
   yearMin: '',
@@ -53,6 +54,7 @@ export function applyFilters(listings, filters, freshSince) {
   const result = listings.filter((listing) => {
     if (filters.sources.length && !filters.sources.includes(listing.source)) return false
     if (filters.sellerTypes.length && !filters.sellerTypes.includes(listing.sellerType)) return false
+    if (filters.countries.length && !filters.countries.includes(listing.country)) return false
     if (filters.models.length && !filters.models.includes(listing.model)) return false
     if ((listing.price ?? 0) > priceMax) return false
     if (yearMin && (listing.year ?? 0) < yearMin) return false

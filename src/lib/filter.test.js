@@ -80,3 +80,21 @@ test('sortiranje po cijeni stavlja oglase bez cijene na kraj', () => {
   const shown = applyFilters(listings, withFilters({ sort: 'jeftinije' }), 0)
   assert.deepEqual(shown.map((l) => l.id), ['jeftin', 'skup', 'bez'])
 })
+
+test('filtar države propušta samo odabrane zemlje', () => {
+  const listings = [
+    ad('Octavia', 20000),
+    { ...ad('A5', 30000), id: 'de', country: 'DE' },
+    { ...ad('S60', 25000), id: 'si', country: 'SI' },
+  ]
+  listings[0].country = 'HR'
+  listings[0].id = 'hr'
+
+  const shown = applyFilters(listings, withFilters({ countries: ['HR', 'SI'] }), 0)
+  assert.deepEqual(shown.map((l) => l.id).sort(), ['hr', 'si'])
+})
+
+test('bez odabrane države prolaze svi oglasi', () => {
+  const listings = [{ ...ad('A5', 30000), country: 'DE' }, { ...ad('Octavia', 20000), country: 'HR' }]
+  assert.equal(applyFilters(listings, EMPTY_FILTERS, 0).length, 2)
+})

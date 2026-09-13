@@ -1,10 +1,18 @@
 {
   "criteria": {
-    "fuelAllow": ["benzin"],
+    "fuelAllow": [
+      "benzin"
+    ],
+    "countries": [
+      "HR"
+    ],
     "yearMin": 2020,
     "priceMax": 23000,
     "mileageMax": 93000,
-    "bodyTypes": ["limuzina", "suv"]
+    "bodyTypes": [
+      "limuzina",
+      "suv"
+    ]
   },
   "models": [
     {
@@ -75,9 +83,15 @@
     "autokatalog": {
       "enabled": true
     },
+    "auti-hr": {
+      "enabled": true
+    },
     "autoscout24": {
       "enabled": true,
-      "countries": ["D", "A"],
+      "countries": [
+        "D",
+        "A"
+      ],
       "maxPagesPerModel": 2
     },
     "njuskalo": {

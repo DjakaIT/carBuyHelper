@@ -17,6 +17,7 @@ create table if not exists listings (
   seller_type   text,
   seller_name   text,
   body_type     text,
+  country       text,
   description   text,
   price         integer,
   year          integer,
@@ -48,6 +49,7 @@ const ADDED_COLUMNS = [
   ['seller_type', 'text'],
   ['seller_name', 'text'],
   ['body_type', 'text'],
+  ['country', 'text'],
 ]
 
 export function openDb(path = DB_PATH) {
@@ -73,9 +75,9 @@ export function insertListings(db, listings, firstSeenAt = new Date().toISOStrin
   const insert = db.prepare(`
     insert or ignore into listings
       (source_id, external_id, url, title, make, model, seller_type, seller_name, body_type,
-       description, price, year, mileage, fuel, location, image_url, gallery, posted_at,
-       first_seen_at)
-    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       country, description, price, year, mileage, fuel, location, image_url, gallery,
+       posted_at, first_seen_at)
+    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `)
 
   const remember = db.prepare(
@@ -96,6 +98,7 @@ export function insertListings(db, listings, firstSeenAt = new Date().toISOStrin
         listing.sellerType ?? null,
         listing.sellerName ?? null,
         listing.bodyType ?? null,
+        listing.country ?? null,
         listing.description ?? null,
         listing.price ?? null,
         listing.year ?? null,
