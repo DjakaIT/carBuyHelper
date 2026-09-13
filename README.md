@@ -11,7 +11,7 @@ Specifikacija i pravila rada: [CLAUDE.md](CLAUDE.md). Donesene odluke: [DECISION
 | Index oglasi | radi — puni podaci s opisom |
 | AutoKatalog | radi — samo registrirane hrvatske autokuće, link vodi na salon |
 | AutoScout24 | radi — Njemačka i Austrija, bez opisa |
-| Njuškalo | preko Apify actora `rastriq/njuskalo-scraper` (traži `APIFY_TOKEN`); izravan dohvat blokira njihova bot-zaštita |
+| Njuškalo | modul napisan, ali njihova bot-zaštita blokira ovaj IP (vidi DECISIONS.md) |
 | Facebook Marketplace | radi uz jednokratnu prijavu: `npm run facebook:login`, pa `enabled: true` u configu |
 | mobile.de | blokira već prvi zahtjev; ide preko email alerta (vidi TODO.md) |
 
@@ -61,15 +61,6 @@ src/                    React dashboard
 | 3 | Dodatni izvori | AutoScout24 gotov, ostali čekaju email alert |
 | 4 | Facebook Marketplace (uvjetno) | čeka odluku |
 | 5 | GitHub Actions cron + deploy | gotovo |
-
-## Tajne
-
-`APIFY_TOKEN` — potreban samo za Njuškalo. Lokalno se postavi u okolini prije pokretanja, a za
-dnevni posao kao GitHub secret istog imena. Token ne ide u repo ni u `config/models.json`.
-
-Njuškalo se naplaćuje po dohvaćenom oglasu (red veličine 1,90 USD na 1000 oglasa plus sitnica po
-pokretanju), pa `maxItems` u configu drži trošak pod kontrolom. Bez tokena taj izvor javi grešku,
-a ostali se dohvate normalno.
 
 ## Deploy
 

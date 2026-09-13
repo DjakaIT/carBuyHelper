@@ -135,11 +135,7 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 - **Rizik Facebooka je stvaran i nije isti kao ručno gledanje.** Ručno otvaranje Marketplacea je uobičajeno korištenje; automatizirani dohvat je protiv njihovih Uvjeta bez obzira na to što gleda iste oglase, a prepoznaje se po ponašanju (ritam, broj zahtjeva, odsutnost mišjih pokreta). Posljedica nije tužba nego zaključavanje računa ili traženje dodatne provjere. Zato: mali broj upita, jednom dnevno, s osobnog računala i uz nasumično vrijeme. Odluka je vlasnikova i zapisana je ovdje.
 - **Dohvat se svaki dan pokreće u drugo vrijeme.** Pet termina u workflowu, a koji je današnji bira se iz dana u godini (ciklus od pet dana). Odgoda kroz `sleep` bi trošila minute runnera; ovako preskočeni termin traje sekundu.
 
-## 2026-09-13 — Njuškalo preko Apifyja
+## 2026-09-13 — Apify izbačen
 
-- **Njuškalo se dohvaća preko Apify actora `rastriq/njuskalo-scraper`, u "live" načinu.** Njihova bot-zaštita blokira izravan dohvat s ovog IP-a; actor taj pristup rješava umjesto nas. Izravni modul ostaje u kodu i bira se s `"via": "direct"` — nije obrisan jer je besplatan kad prolazi.
-- **Actor prima naš URL pretrage.** Ima polje `startUrls` koje prihvaća search stranice Njuškala, pa kriteriji ostaju u našem configu (gorivo, godište, cijena, kilometraža, karoserija) umjesto da se prepisuju u njihove kategorije.
-- **Pretražuje se po marki, a model se prosijava lokalno.** Filtriranje po modelu na Njuškalu traži njihove `vehicleIds`, a za njih treba otvoriti stranicu marke — što je upravo ono što je blokirano. Actor zato dobiva četiri URL-a (po jedan po marki), a model se odabire iz polja `make` i `model` koja actor vraća strukturirano, ne iz naslova.
-- **Token ide u okolinu, ne u repo.** `APIFY_TOKEN` se čita iz okoline; u CI-u je GitHub secret. Bez tokena izvor javi grešku, a ostali izvori se dohvate normalno (run.js ionako preživi pad pojedinog izvora).
-- **Trošak je stvaran, pa je ograničen.** Naplata je po dohvaćenom oglasu (red veličine 1,90 USD na 1000) plus sitnica po pokretanju; `maxItems` u configu je zato 100, a `scrapeDetail` je isključen jer opis nije vrijedan dodatnog troška i vremena.
-- **Kilometraža dolazi iz `ext_specs`, koji nema zajamčen oblik** (mapa ili niz parova), pa se čita tolerantno i pada na `null` umjesto da ruši dohvat.
+- **Njuškalo preko Apify actora je bilo integrirano pa uklonjeno, na zahtjev vlasnika.** Tehnički je radilo kako treba (actor prima našu search stranicu, kriteriji ostaju u configu), ali uvodi vanjsku ovisnost, tuđi račun i trošak po dohvaćenom oglasu. Ne predlagati ponovno bez izričitog traženja.
+- **Njuškalo time ostaje na izravnom dohvatu**, koji njihova bot-zaštita trenutno blokira. Dok blokada traje, taj izvor svaki dan uredno javi da je preskočen i ne ruši ostale. Put naprijed, ako zatreba, je spremljena pretraga + email alert (traži primjer njihovog maila).

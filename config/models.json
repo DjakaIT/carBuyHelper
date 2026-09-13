@@ -73,10 +73,7 @@
       "maxPagesPerModel": 2
     },
     "njuskalo": {
-      "enabled": true,
-      "via": "apify",
-      "maxItems": 100,
-      "scrapeDetail": false
+      "enabled": true
     },
     "facebook": {
       "enabled": false,
