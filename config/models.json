@@ -1,15 +1,10 @@
 {
   "criteria": {
-    "fuelAllow": [
-      "benzin"
-    ],
+    "fuelAllow": ["benzin"],
     "yearMin": 2020,
-    "priceMax": 27000,
-    "mileageMax": 100000,
-    "bodyTypes": [
-      "limuzina",
-      "suv"
-    ]
+    "priceMax": 23000,
+    "mileageMax": 93000,
+    "bodyTypes": ["limuzina", "suv"]
   },
   "models": [
     {
@@ -55,6 +50,22 @@
     {
       "make": "Volvo",
       "model": "S90"
+    },
+    {
+      "make": "Nissan",
+      "model": "Qashqai"
+    },
+    {
+      "make": "Toyota",
+      "model": "Corolla Sedan"
+    },
+    {
+      "make": "Mazda",
+      "model": "CX-30"
+    },
+    {
+      "make": "Mazda",
+      "model": "CX-5"
     }
   ],
   "sources": {
@@ -66,10 +77,7 @@
     },
     "autoscout24": {
       "enabled": true,
-      "countries": [
-        "D",
-        "A"
-      ],
+      "countries": ["D", "A"],
       "maxPagesPerModel": 2
     },
     "njuskalo": {
