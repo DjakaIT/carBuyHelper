@@ -2,9 +2,15 @@ import { useEffect, useRef } from 'react'
 import { EMPTY_FILTERS, SORT_OPTIONS, isFiltered } from '../lib/filter.js'
 import { sourceLabel } from '../lib/sources.js'
 
-function Toggle({ pressed, onClick, children }) {
+function Toggle({ pressed, onClick, children, source }) {
   return (
-    <button type="button" className="chip" aria-pressed={pressed} onClick={onClick}>
+    <button
+      type="button"
+      className="chip"
+      data-source={source}
+      aria-pressed={pressed}
+      onClick={onClick}
+    >
       {children}
     </button>
   )
@@ -53,6 +59,7 @@ export default function Filters({ facets, filters, onChange, shown, total }) {
             <Toggle
               key={source}
               pressed={filters.sources.includes(source)}
+              source={source}
               onClick={() => toggle('sources', source)}
             >
               {sourceLabel(source)}

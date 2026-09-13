@@ -46,6 +46,9 @@ function validate(config, path) {
   if (!Number.isInteger(criteria.yearMin)) {
     fail('"criteria.yearMin" mora biti cijeli broj')
   }
+  if (criteria.priceMax != null && !Number.isInteger(criteria.priceMax)) {
+    fail('"criteria.priceMax" mora biti cijeli broj ili izostavljen')
+  }
   if (criteria.mileageMax != null && !Number.isInteger(criteria.mileageMax)) {
     fail('"criteria.mileageMax" mora biti cijeli broj ili izostavljen')
   }

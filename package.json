@@ -14,7 +14,8 @@
     "test": "node --disable-warning=ExperimentalWarning --test \"scraper/**/*.test.js\" \"src/**/*.test.js\"",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "facebook:login": "node --disable-warning=ExperimentalWarning scraper/facebook-login.js"
   },
   "dependencies": {
     "react": "^19.2.8",

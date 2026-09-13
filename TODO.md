@@ -4,14 +4,15 @@ Stvari uočene izvan trenutne faze — da se ne skreće s teme, ali ni ne zabora
 
 ## Čeka vlasnika
 
-- **Popis salona:** Reddit blokira moje alate, pa imena salona trebaju stići od tebe (linkovi na teme ili sama imena). Podaci o prodavaču već postoje u bazi (tip + naziv), pa je dodavanje popisa praćenih salona mala izmjena.
+- **Popis salona s Reddita:** Reddit blokira moje alate. AutoKatalog je u međuvremenu dodan i pokriva registrirane hrvatske autokuće, pa je popis s Reddita sada dodatak, ne nužnost — ako pošalješ imena, dodaje se filter "samo moji saloni".
+- **Facebook: provjeriti čitanje kartica.** Modul se prijavljuje i prepoznaje odsutnost sesije, ali raspored teksta u karticama Marketplacea nisam vidio (nema sesije). Prvi dohvat nakon prijave treba usporediti s onim što piše na ekranu — moguće je da cijena, kilometraža ili lokacija trebaju drugačije čitanje.
 
 ## Izvori koji čekaju odluku vlasnika
 
 - **Njuškalo:** modul je napisan i uključen, ali ovaj IP je blokiran. Provjeriti prvo automatsko pokretanje; ako i ondje pada, ide na email alert.
 - **mobile.de:** Akamai blokira već prvi zahtjev. Ide na spremljenu pretragu + email alert. Za to treba: (1) spremljene pretrage, (2) IMAP pristup mailu, (3) **jedan primjer takvog maila** da se parser piše po stvarnom sadržaju.
 - **Facebook Marketplace:** CLAUDE.md 2.3 — ne kreće bez odluke o pristupu (osobni nalog vs. plaćeni servis).
-- **auti.hr:** sljedeći kandidat za scraping. Nema bot-zaštite, ali filteri su neprozirni (`search[1][96]=389`); sve opcije s ID-jevima stoje u HTML-u stranice pretrage, pa mapiranje treba jedan dohvat.
+- **auti.hr:** kandidat za scraping. Nema bot-zaštite, ali filteri su neprozirni (`search[1][96]=389`); sve opcije s ID-jevima stoje u HTML-u stranice pretrage, pa mapiranje treba jedan dohvat.
 - **polovniautomobili.com:** srpsko tržište, dohvat radi. Vrijedi tek ako se uvoz iz regije smatra relevantnim.
 
 ## Provjeriti nakon prvog automatskog pokretanja

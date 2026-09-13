@@ -9,9 +9,11 @@ Specifikacija i pravila rada: [CLAUDE.md](CLAUDE.md). Donesene odluke: [DECISION
 | Izvor | Stanje |
 | --- | --- |
 | Index oglasi | radi — puni podaci s opisom |
+| AutoKatalog | radi — samo registrirane hrvatske autokuće, link vodi na salon |
 | AutoScout24 | radi — Njemačka i Austrija, bez opisa |
-| Njuškalo, mobile.de | blokiraju automatski dohvat; idu preko email alerta (vidi TODO.md) |
-| Facebook Marketplace | čeka odluku o pristupu |
+| Njuškalo | modul napisan, ali njihova bot-zaštita blokira ovaj IP (vidi DECISIONS.md) |
+| Facebook Marketplace | radi uz jednokratnu prijavu: `npm run facebook:login`, pa `enabled: true` u configu |
+| mobile.de | blokira već prvi zahtjev; ide preko email alerta (vidi TODO.md) |
 
 ## Stack
 
@@ -25,7 +27,8 @@ Traži se Node >= 24 (zbog `node:sqlite`).
 
 ```bash
 npm install
-npm run refresh  # dohvat + izvoz snapshota za dashboard
+npm run refresh          # dohvat + izvoz snapshota za dashboard
+npm run facebook:login   # jednokratna ručna prijava za Marketplace
 npm run scrape   # samo dohvat
 npm run export   # samo izvoz public/data/listings.json
 npm test         # testovi scrapera
@@ -62,5 +65,7 @@ src/                    React dashboard
 ## Deploy
 
 Dnevni posao je GitHub Actions workflow (`.github/workflows/dnevni-dohvat.yml`): dohvati nove
-oglase, izveze snapshot i commita promjenu natrag u repo. Frontend je statičan build — Netlify
+oglase, izveze snapshot i commita promjenu natrag u repo. Vrijeme dohvata se mijenja iz dana u
+dan — pet je termina, a današnji se bira iz datuma. Facebook se tu ne dohvaća: njegova je sesija
+vezana uz osobno računalo, pa se taj izvor pokreće lokalno. Frontend je statičan build — Netlify
 čita `netlify.toml`, a za Cloudflare Pages vrijede iste postavke (build `npm run build`, izlaz `dist`).

@@ -79,6 +79,9 @@ async function loadVehicleIds(models) {
 function buildSearchUrl(config, vehicleIds, page) {
   const params = new URLSearchParams({ sort: 'new', page: String(page) })
   params.set('yearManufactured[min]', String(config.criteria.yearMin))
+  if (config.criteria.priceMax != null) {
+    params.set('price[max]', String(config.criteria.priceMax))
+  }
   if (config.criteria.mileageMax != null) {
     params.set('mileage[max]', String(config.criteria.mileageMax))
   }

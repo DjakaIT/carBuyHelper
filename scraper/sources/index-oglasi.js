@@ -94,6 +94,9 @@ function buildSearchParams(config, modelIds) {
     sortOption: String(DATE_DESC),
     makeYearFrom: `${config.criteria.yearMin}-01-01`,
   })
+  if (config.criteria.priceMax != null) {
+    params.set('priceTo', String(config.criteria.priceMax))
+  }
   if (config.criteria.mileageMax != null) {
     params.set('mileageTo', String(config.criteria.mileageMax))
   }

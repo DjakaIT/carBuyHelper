@@ -102,3 +102,35 @@ Ispod 900 px redak postaje kartica: slika lijevo 96×72, naslov, specifikacije u
 - **Njuškalo je implementirano do kraja, ali se ne može potvrditi na ovom IP-u.** Modul zna njihovu strukturu (obitelj modela iz `categories`, `fuelTypeId=600`, `yearManufactured[min]`, `mileage[max]`, `sort=new`, podaci iz `window.__INITIAL_STATE__`), ide s 6 sekundi razmaka i prepoznaje CAPTCHA stranicu pa uredno odustane umjesto da vrati prazno. Ovaj IP je označen od ranijeg testiranja i blokada nije popustila ni nakon sat vremena. Prvo pokretanje s drugog IP-a (npr. GitHub Actions) pokazat će prolazi li uopće.
 - **Prodavač: tip se zna za sve izvore, ime samo gdje ga izvor daje.** Index vraća `legalEntity` (1 privatno / 2 tvrtka) ali ne i naziv, AutoScout24 daje `seller.type` i `companyName`, Njuškalo ime profila. Sučelje ima filtere "salon" i "privatno".
 - **Popis salona s Reddita nije napravljen.** Reddit blokira pristup mojim alatima (i pretragu i dohvat stranice), pa bi svaki popis bio izmišljen. Čeka se da vlasnik pošalje linkove na teme ili imena salona.
+
+## 2026-09-13 — Faza 2b: F1 sučelje (plan prije koda)
+
+**Princip:** F1 timing tower, ne F1 poster. Uzima se ono što tu ploču čini upotrebljivom — gusti tamni redci, monospace brojke, i **boja koja znači razliku** — a ne dekoracija (zastavice, karbon teksture, logotipi).
+
+**Ključni prijenos:** u F1 boja vremena govori koliko si brži ili sporiji od referentnog. Ovdje boja govori **koliko je cijena ispod ili iznad medijana za taj isti model** u trenutnoj listi:
+
+- ljubičasta = najjeftiniji primjerak tog modela (oznaka `P1`, kao najbrži krug)
+- zelena = osjetno ispod medijana (10 % ili više)
+- siva = oko medijana
+- jantarna = 10 % ili više iznad medijana
+
+Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj model), a ne boju radi boje. Redni broj retka je pozicija u trenutnom sortiranju — lista jest poredak, pa broj nešto znači.
+
+**Paleta** (tamna je primarna, svijetla prati): asfalt `#0E0F12`, ploha `#16181D`, linija `#23262E`, tinta `#E8EAED`, prigušeno `#8A9099`, F1 crvena `#E10600` (samo akcenti i marka), brza zelena `#00D26A`, jantarna `#F0A202`, ljubičasta `#B14AED`.
+
+**Izvor = boja tima:** tanka traka uz lijevi rub retka razlikuje izvor (Index plava, AutoKatalog crvena, AutoScout24 jantarna, Njuškalo zelena). Legenda je u chipovima filtera, koji nose iste boje.
+
+**Tipografija:** naslovi i zaglavlja stupaca velikim slovima s razmakom (F1 grafika je tracked i condensed), sadržaj i dalje sistemski sans, sve brojke monospace s `tabular-nums`.
+
+**Motion ostaje suzdržan:** odgovor na pritisak, bljesak retka koji je nov od zadnjeg posjeta, i ništa više. Bez animiranih traka, bez hover efekata po kartici.
+
+## 2026-09-13 — AutoKatalog, Facebook, karoserija, raspored
+
+- **Karoserija se filtrira na izvoru u sva tri portala** (`vehicleBodyTypes` na Indexu, `body` na AutoScout24, `bodyTypeId` na Njuškalu). Dopušteno: limuzina, SUV, coupe i hatchback; isključeni karavan, monovolumen, kombibus i kabriolet. **Hatchback ostaje** jer Octavia (liftback) i A5 Sportback kod dijela izvora padaju pod tu oznaku — bez toga bi ispala većina Octavia.
+- **Uz to postoji zaštitna mreža po naslovu.** Dio salona označi karavan kao limuzinu ili SUV, pa filter na izvoru propusti "Octavia Kombi". Riječi kombi/combi/variant/avant/karavan/touring/estate/break kod praćenih modela znače karavan i ništa drugo, pa takav oglas ne ulazi u bazu.
+- **AutoKatalog je dodan kao izvor.** Agregator ponude registriranih hrvatskih autokuća, bez privatnih oglašivača — točno ono što se tražilo kao "provjerene autokuće". Podaci stoje u Next.js RSC payloadu stranice (`initialVehicles`), s markom, modelom, godištem, cijenom, kilometražom, gorivom i **linkom na stranicu same autokuće**, pa oglas vodi izravno prodavaču. Njihovi filteri rade tek u pregledniku (URL parametri se ignoriraju), pa se prosijava lokalno; po modelu stiže 9 najnovijih, što je za dnevni radar dovoljno.
+- **Facebook Marketplace: sesija da, lozinka ne.** Marketplace ne radi bez prijave, ali lozinka ne ide ni u kod ni u config ni meni — `npm run facebook:login` otvori pravi prozor preglednika, prijava se obavi rukom, a sesija ostaje u `data/browser-profile` koji je izvan gita. Dnevni dohvat onda koristi tu sesiju bez prozora.
+- **Za to se ne uvodi Playwright.** Koristi se Edge koji na Windowsu ionako postoji, kroz njegov debug protokol (`scraper/browser.js`) — bez 150 MB preglednika u repou i bez native ovisnosti.
+- **Facebook nikad ne ide u CI.** Modul odbija raditi kad je postavljen `CI`, jer je sesija vezana uz osobno računalo i osobni račun. U configu je `enabled: false` dok se vlasnik ne prijavi.
+- **Rizik Facebooka je stvaran i nije isti kao ručno gledanje.** Ručno otvaranje Marketplacea je uobičajeno korištenje; automatizirani dohvat je protiv njihovih Uvjeta bez obzira na to što gleda iste oglase, a prepoznaje se po ponašanju (ritam, broj zahtjeva, odsutnost mišjih pokreta). Posljedica nije tužba nego zaključavanje računa ili traženje dodatne provjere. Zato: mali broj upita, jednom dnevno, s osobnog računala i uz nasumično vrijeme. Odluka je vlasnikova i zapisana je ovdje.
+- **Dohvat se svaki dan pokreće u drugo vrijeme.** Pet termina u workflowu, a koji je današnji bira se iz dana u godini (ciklus od pet dana). Odgoda kroz `sleep` bi trošila minute runnera; ovako preskočeni termin traje sekundu.

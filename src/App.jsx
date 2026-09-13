@@ -3,6 +3,7 @@ import Filters from './components/Filters.jsx'
 import Listing from './components/Listing.jsx'
 import { DAY_MS, isFresh } from './lib/format.js'
 import { EMPTY_FILTERS, applyFilters } from './lib/filter.js'
+import { marketByModel, standing } from './lib/market.js'
 import './App.css'
 
 const DATA_URL = `${import.meta.env.BASE_URL}data/listings.json`
@@ -60,14 +61,20 @@ export default function App() {
 
   const shown = useMemo(() => applyFilters(listings, filters, now - DAY_MS), [listings, filters, now])
 
+  // Referenca za "vs medijan" je cijela baza, ne trenutni filtar — inače se mjerilo mijenja
+  // svaki put kad se suzi izbor.
+  const market = useMemo(() => marketByModel(listings), [listings])
+
   const freshCount = listings.filter((listing) => isFresh(listing.firstSeenAt, now)).length
 
   return (
     <>
       <header className="masthead">
         <div className="masthead-brand">
-          <h1>AutoRadar</h1>
-          <p>benzin, godište 2020+, odabrani modeli</p>
+          <h1>
+            Auto<span>Radar</span>
+          </h1>
+          <p>benzin, godište 2020+, do 100.000 km, bez karavana</p>
         </div>
         <dl className="masthead-stats">
           <div>
@@ -118,19 +125,22 @@ export default function App() {
             ) : (
               <>
                 <div className="list-head" aria-hidden="true">
-                  <span />
+                  <span>#</span>
                   <span />
                   <span>Vozilo</span>
                   <span>Godište</span>
                   <span>Kilometraža</span>
-                  <span>Gorivo</span>
+                  <span>Karoserija</span>
                   <span>Cijena</span>
+                  <span>Delta</span>
                 </div>
                 <ol className="list">
-                  {shown.map((listing) => (
+                  {shown.map((listing, index) => (
                     <Listing
                       key={listing.id}
                       listing={listing}
+                      position={index + 1}
+                      standing={standing(listing, market)}
                       now={now}
                       fresh={isFresh(listing.firstSeenAt, now)}
                       newSinceVisit={

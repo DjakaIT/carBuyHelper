@@ -1,29 +1,37 @@
 :root {
-  --ink: #14181b;
-  --paper: #edefea;
-  --surface: #ffffff;
-  --rule: #d5d9d2;
-  --muted: #667079;
-  --signal: #1b3fc4;
-  --signal-wash: #e4e9fb;
+  /* Tamna je primarna — timing tower se čita s ekrana, ne s papira. */
+  --asphalt: #0e0f12;
+  --surface: #16181d;
+  --rule: #23262e;
+  --ink: #e8eaed;
+  --muted: #8a9099;
+  --red: #e10600;
+  --good: #00d26a;
+  --high: #f0a202;
+  --best: #b14aed;
+
+  --source-index: #3b82f6;
+  --source-autokatalog: #e10600;
+  --source-autoscout24: #f0a202;
+  --source-njuskalo: #00d26a;
 
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
-  --row-gap: 14px;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --ink: #e6e9e4;
-    --paper: #101311;
-    --surface: #171a18;
-    --rule: #2a2f2b;
-    --muted: #939c94;
-    --signal: #7fa2ff;
-    --signal-wash: #1b2435;
-    color-scheme: dark;
+    --asphalt: #eceef1;
+    --surface: #ffffff;
+    --rule: #d3d7de;
+    --ink: #14171c;
+    --muted: #646b76;
+    --good: #00874a;
+    --high: #a86800;
+    --best: #7c2fbd;
+    color-scheme: light;
   }
 }
 
@@ -33,7 +41,7 @@
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--asphalt);
   color: var(--ink);
   font-family: var(--sans);
   font-size: 15px;
@@ -49,11 +57,10 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--red);
   outline-offset: 2px;
 }
 
-/* Odgovor na pritisak stiže odmah, ne na otpuštanju. */
 button:active,
 a:active {
   transform: scale(0.97);

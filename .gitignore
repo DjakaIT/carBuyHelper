@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Prijavljena sesija preglednika (Facebook) - ostaje samo na ovom racunalu
+data/browser-profile

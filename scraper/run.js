@@ -1,10 +1,12 @@
 import { isSourceEnabled, loadConfig } from './config.js'
 import { insertListings, openDb, recordPrices, seenIds, updateSeller } from './db.js'
+import * as autokatalog from './sources/autokatalog.js'
 import * as autoscout24 from './sources/autoscout24.js'
+import * as facebook from './sources/facebook.js'
 import * as indexOglasi from './sources/index-oglasi.js'
 import * as njuskalo from './sources/njuskalo.js'
 
-const SOURCES = [indexOglasi, autoscout24, njuskalo]
+const SOURCES = [indexOglasi, autokatalog, autoscout24, njuskalo, facebook]
 
 // Dio salona označi karavan kao limuzinu ili SUV, pa filter na izvoru propusti "Octavia Kombi".
 // Ove riječi kod praćenih modela znače karavan i ništa drugo.

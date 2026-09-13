@@ -1,9 +1,15 @@
 name: Dnevni dohvat oglasa
 
 on:
+  # Pet termina kroz dan, ali posao odradi samo jedan od njih — koji, bira se iz datuma,
+  # pa se vrijeme dohvata mijenja iz dana u dan umjesto da uvijek kuca u istu minutu.
+  # Odgoda kroz "sleep" bi trošila minute runnera; ovako preskočeni termin traje sekundu.
   schedule:
-    # 05:00 UTC = 07:00 ljeti / 06:00 zimi po hrvatskom vremenu
-    - cron: '0 5 * * *'
+    - cron: '17 5 * * *'
+    - cron: '43 8 * * *'
+    - cron: '11 12 * * *'
+    - cron: '29 16 * * *'
+    - cron: '53 19 * * *'
   workflow_dispatch:
 
 permissions:
@@ -17,19 +23,41 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      - name: Je li ovo današnji termin
+        id: slot
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          slots=(5 8 12 16 19)
+          index=$(( ($(date -u +%j) * 7) % ${#slots[@]} ))
+          if [ "$(date -u +%-H)" = "${slots[$index]}" ]; then
+            echo "run=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nije današnji termin (danas ide u ${slots[$index]}h UTC)."
+            echo "run=no" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v5
+        if: steps.slot.outputs.run == 'yes'
 
       - uses: actions/setup-node@v5
+        if: steps.slot.outputs.run == 'yes'
         with:
           node-version: '24'
           cache: npm
 
       - run: npm ci
+        if: steps.slot.outputs.run == 'yes'
 
       # run.js preživi pad pojedinog izvora, pa se sprema ono što je dohvaćeno.
+      # Facebook se ovdje ne dohvaća — njegova sesija je vezana uz osobno računalo.
       - run: npm run refresh
+        if: steps.slot.outputs.run == 'yes'
 
       - name: Spremi deltu u repo
+        if: steps.slot.outputs.run == 'yes'
         run: |
           git config user.name 'autoradar'
           git config user.email 'autoradar@users.noreply.github.com'
@@ -37,6 +65,6 @@ jobs:
           if git diff --staged --quiet; then
             echo 'Nema novih oglasa.'
           else
-            git commit -m "Oglasi: $(date -u '+%Y-%m-%d')"
+            git commit -m "Oglasi: $(date -u '+%Y-%m-%d %H:%M')"
             git push
           fi

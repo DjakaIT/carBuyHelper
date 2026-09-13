@@ -47,6 +47,9 @@ function buildUrl(config, settings, make, model, page) {
     cy: (settings.countries ?? DEFAULT_COUNTRIES).join(','),
     page: String(page),
   })
+  if (config.criteria.priceMax != null) {
+    params.set('priceto', String(config.criteria.priceMax))
+  }
   if (config.criteria.mileageMax != null) {
     params.set('kmto', String(config.criteria.mileageMax))
   }

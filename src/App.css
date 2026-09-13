@@ -1,7 +1,6 @@
-/* Jedna mjera za zaglavlje, filtere i retke — stupci se moraju poklapati po cijeloj stranici. */
 .masthead,
 main {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
   padding-inline: 20px;
 }
@@ -14,40 +13,54 @@ main {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  padding-block: 26px 18px;
+  padding-block: 26px 16px;
 }
 
 .masthead-brand h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.masthead-brand h1 span {
+  color: var(--red);
 }
 
 .masthead-brand p {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .masthead-stats {
   display: flex;
-  gap: 28px;
+  gap: 10px;
   margin: 0;
+}
+
+.masthead-stats div {
+  min-width: 96px;
+  padding: 7px 12px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
 }
 
 .masthead-stats dt {
   color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .masthead-stats dd {
-  margin: 2px 0 0;
+  margin: 3px 0 0;
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: 19px;
   font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 
 /* ---------- filteri ---------- */
@@ -55,9 +68,10 @@ main {
 .filters {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
   padding: 14px 0 16px;
-  border-block: 1px solid var(--rule);
+  border-top: 2px solid var(--red);
+  border-bottom: 1px solid var(--rule);
 }
 
 .filters-row {
@@ -68,16 +82,16 @@ main {
 }
 
 .field {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  position: relative;
 }
 
 .field-label {
   color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -87,12 +101,12 @@ main {
   padding: 0 10px;
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 .field--search {
-  flex: 1 1 240px;
-  max-width: 360px;
+  flex: 1 1 230px;
+  max-width: 330px;
 }
 
 .field--search input {
@@ -102,7 +116,7 @@ main {
 
 .field--search kbd {
   position: absolute;
-  right: 8px;
+  right: 9px;
   bottom: 9px;
   color: var(--muted);
   font-family: var(--mono);
@@ -111,7 +125,7 @@ main {
 }
 
 .field--number input {
-  width: 110px;
+  width: 108px;
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
 }
@@ -122,33 +136,54 @@ main {
   gap: 6px;
 }
 
-.chips--models {
-  padding-top: 2px;
-}
-
 .chip {
-  height: 30px;
+  height: 29px;
   padding: 0 11px;
-  background: transparent;
+  background: var(--surface);
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: 3px;
   color: var(--muted);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .chip[aria-pressed='true'] {
-  background: var(--signal-wash);
-  border-color: var(--signal);
-  color: var(--signal);
-  font-weight: 500;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--asphalt);
+  font-weight: 600;
+}
+
+/* Chip izvora nosi boju tog izvora - ista boja stoji uz redak u listi. */
+.chip[data-source='index-oglasi'][aria-pressed='true'] {
+  background: var(--source-index);
+  border-color: var(--source-index);
+  color: #fff;
+}
+
+.chip[data-source='autokatalog'][aria-pressed='true'] {
+  background: var(--source-autokatalog);
+  border-color: var(--source-autokatalog);
+  color: #fff;
+}
+
+.chip[data-source='autoscout24'][aria-pressed='true'] {
+  background: var(--source-autoscout24);
+  border-color: var(--source-autoscout24);
+  color: #17181c;
+}
+
+.chip[data-source='njuskalo'][aria-pressed='true'] {
+  background: var(--source-njuskalo);
+  border-color: var(--source-njuskalo);
+  color: #10130f;
 }
 
 .filters-count {
   margin: 0 0 7px auto;
   color: var(--muted);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12.5px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -157,10 +192,10 @@ main {
   padding: 0 12px;
   background: transparent;
   border: 1px solid var(--rule);
-  border-radius: 2px;
+  border-radius: 3px;
   color: var(--ink);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 /* ---------- lista ---------- */
@@ -168,16 +203,16 @@ main {
 .list-head,
 .row {
   display: grid;
-  grid-template-columns: 3px 112px minmax(0, 1fr) 86px 116px 92px 124px;
+  grid-template-columns: 30px 128px minmax(0, 1fr) 76px 112px 104px 120px 92px;
   align-items: center;
   gap: 0 16px;
 }
 
 .list-head {
-  padding: 10px 0 8px;
+  padding: 12px 0 8px;
   color: var(--muted);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -191,42 +226,68 @@ main {
 
 .list {
   margin: 0;
-  padding: 0 0 48px;
+  padding: 0 0 56px;
   list-style: none;
 }
 
 .row {
   position: relative;
-  padding: 10px 0;
+  padding: 11px 0 11px 10px;
   border-top: 1px solid var(--rule);
 }
 
-.row-marker {
-  align-self: stretch;
-  background: transparent;
+/* Traka uz rub govori iz kojeg izvora oglas dolazi. */
+.row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--rule);
 }
 
-.row.is-fresh .row-marker {
-  background: var(--signal);
+.row[data-source='index-oglasi']::before {
+  background: var(--source-index);
+}
+
+.row[data-source='autokatalog']::before {
+  background: var(--source-autokatalog);
+}
+
+.row[data-source='autoscout24']::before {
+  background: var(--source-autoscout24);
+}
+
+.row[data-source='njuskalo']::before {
+  background: var(--source-njuskalo);
+}
+
+.row-pos {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .row-image {
   display: block;
-  width: 112px;
-  height: 84px;
-  background: var(--rule);
-  border-radius: 2px;
+  width: 128px;
+  height: 96px;
+  background: var(--surface);
+  border-radius: 3px;
   object-fit: cover;
 }
 
 .row-image--empty {
-  opacity: 0.5;
+  border: 1px solid var(--rule);
 }
 
 .row-title {
   margin: 0;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -235,7 +296,6 @@ main {
   text-decoration: none;
 }
 
-/* Cijeli redak je meta klika, ali fokus tipkovnicom dobiva samo naslov. */
 .row-title a::after {
   content: '';
   position: absolute;
@@ -244,31 +304,41 @@ main {
 
 .row-title a:hover {
   text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.badge {
-  padding: 1px 6px;
-  border: 1px solid var(--signal);
-  border-radius: 2px;
-  color: var(--signal);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  text-underline-offset: 3px;
 }
 
 .row-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 4px 0 0;
+  align-items: center;
+  gap: 5px 12px;
+  margin: 5px 0 0;
   color: var(--muted);
   font-size: 12px;
 }
 
 .row-source {
   color: var(--ink);
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge--new {
+  background: var(--red);
+  color: #fff;
+}
+
+.badge--best {
+  background: var(--best);
+  color: #fff;
 }
 
 .row-specs {
@@ -288,9 +358,10 @@ main {
   text-align: right;
 }
 
-.spec--fuel dd {
+.spec--text dd {
   font-family: var(--sans);
   font-size: 13px;
+  text-transform: capitalize;
 }
 
 .row-price {
@@ -298,18 +369,68 @@ main {
   font-family: var(--mono);
   font-size: 16px;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 700;
   text-align: right;
 }
 
-/* Oglasi pristigli od zadnjeg posjeta jednom bljesnu, pa se smire. */
+.row-price-was {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 400;
+}
+
+/* Delta prema medijanu istog modela - ista logika kao sektori u F1. */
+.row-delta {
+  margin: 0;
+  text-align: right;
+}
+
+.row-delta-value {
+  display: block;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.row-delta-label {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.row[data-tone='best'] .row-delta-value {
+  color: var(--best);
+}
+
+.row[data-tone='good'] .row-delta-value {
+  color: var(--good);
+}
+
+.row[data-tone='high'] .row-delta-value {
+  color: var(--high);
+}
+
+.row[data-tone='even'] .row-delta-value {
+  color: var(--muted);
+}
+
+.row-delta-value--none {
+  color: var(--rule);
+}
+
 .row.is-new {
   animation: arrive 1400ms ease-out;
 }
 
 @keyframes arrive {
   from {
-    background: var(--signal-wash);
+    background: color-mix(in srgb, var(--red) 18%, transparent);
   }
   to {
     background: transparent;
@@ -323,10 +444,6 @@ main {
   color: var(--muted);
 }
 
-.notice--error {
-  color: var(--ink);
-}
-
 .notice code {
   font-family: var(--mono);
   font-size: 13px;
@@ -334,7 +451,7 @@ main {
 
 /* ---------- uski ekran ---------- */
 
-@media (max-width: 899px) {
+@media (max-width: 979px) {
   .list-head {
     display: none;
   }
@@ -344,17 +461,12 @@ main {
     grid-template-areas:
       'image main'
       'specs specs'
-      'price price';
+      'price delta';
     gap: 8px 12px;
-    padding: 14px 0 14px 10px;
-    border-left: 3px solid transparent;
+    padding: 14px 0 14px 12px;
   }
 
-  .row.is-fresh {
-    border-left-color: var(--signal);
-  }
-
-  .row-marker {
+  .row-pos {
     display: none;
   }
 
@@ -384,8 +496,8 @@ main {
   .spec dt {
     display: block;
     color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-size: 10px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
@@ -395,34 +507,24 @@ main {
 
   .row-price {
     grid-area: price;
-    text-align: right;
+    text-align: left;
+  }
+
+  .row-delta {
+    grid-area: delta;
+    align-self: end;
   }
 
   .masthead {
-    padding-block: 20px 14px;
+    padding-block: 20px 12px;
   }
 
-  .masthead-stats {
-    gap: 20px;
+  .masthead-stats div {
+    min-width: 82px;
+    padding: 6px 10px;
   }
 
   .filters-count {
     margin-left: 0;
-  }
-}
-
-/* Prijašnja cijena stoji ispod trenutne — pad cijene je razlog za klik. */
-.row-price-was {
-  display: block;
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 400;
-}
-
-@media (max-width: 899px) {
-  .row-price-was {
-    display: inline;
-    margin-left: 8px;
   }
 }
