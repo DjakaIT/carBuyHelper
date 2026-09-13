@@ -55,6 +55,10 @@ jobs:
       # Facebook se ovdje ne dohvaća — njegova sesija je vezana uz osobno računalo.
       - run: npm run refresh
         if: steps.slot.outputs.run == 'yes'
+        env:
+          # Njuškalo se dohvaća preko Apify actora; bez tokena taj izvor samo javi grešku
+          # i ostali nastave normalno.
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
 
       - name: Spremi deltu u repo
         if: steps.slot.outputs.run == 'yes'

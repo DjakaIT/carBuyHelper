@@ -1,3 +1,4 @@
+import { runActor, specValue } from '../apify.js'
 import { getHtml } from '../http.js'
 
 export const id = 'njuskalo'
@@ -10,6 +11,9 @@ const CARS_PATH = '/auti'
 // između zahtjeva, jedan upit za sve modele odjednom i prekid čim se pojavi CAPTCHA stranica
 // (vidi DECISIONS.md). Bolje prazan dan nego uporno lupanje na vrata.
 const MIN_DELAY_MS = 6000
+
+const APIFY_ACTOR = 'rastriq~njuskalo-scraper'
+const APIFY_MAX_ITEMS = 100
 const MAX_PAGES = 8
 
 const FUEL_IDS = { benzin: 600, diesel: 602, dizel: 602, hibrid: 604, elektricni: 606, struja: 606 }
@@ -76,6 +80,98 @@ async function loadVehicleIds(models) {
   return ids
 }
 
+/**
+ * Pretraga po marki, bez ID-jeva modela. Dohvat ID-jeva traži otvaranje stranice marke, a
+ * to je upravo ono što bot-zaštita blokira — preko Apifyja se zato filtrira po marki, a
+ * model se prosijava lokalno po strukturiranim poljima koja actor vrati.
+ */
+function buildMakeUrl(config, make) {
+  const params = new URLSearchParams({ sort: 'new' })
+  params.set('yearManufactured[min]', String(config.criteria.yearMin))
+  if (config.criteria.priceMax != null) params.set('price[max]', String(config.criteria.priceMax))
+  if (config.criteria.mileageMax != null) {
+    params.set('mileage[max]', String(config.criteria.mileageMax))
+  }
+  for (const name of config.criteria.fuelAllow) {
+    const fuelId = FUEL_IDS[normalize(name)]
+    if (!fuelId) throw new Error(`Njuškalo ne podržava gorivo "${name}"`)
+    params.append('fuelTypeId', String(fuelId))
+  }
+  for (const name of config.criteria.bodyTypes ?? []) {
+    const bodyId = BODY_IDS[normalize(name)]
+    if (bodyId === undefined) throw new Error(`Njuškalo ne podržava karoseriju "${name}"`)
+    params.append('bodyTypeId', String(bodyId))
+  }
+  return `${BASE}${CARS_PATH}/${slug(make)}?${params}`
+}
+
+/** Oglas je naš ako mu marka i model odgovaraju nekom retku iz configa (uključujući izvedenice). */
+function wantedModel(config, make, model) {
+  const wanted = normalize(`${make} ${model}`)
+  return config.models.some((entry) => {
+    const prefix = normalize(`${entry.make} ${entry.model}`)
+    return wanted === prefix || wanted.startsWith(`${prefix} `)
+  })
+}
+
+function fromApifyItem(item, fuel) {
+  const mileage = specValue(item.ext_specs, /kilometra|mileage|(^|[^a-z])km([^a-z]|$)/i)
+  const digits = (mileage ?? '').replace(/[^\d]/g, '')
+
+  return {
+    sourceId: id,
+    externalId: String(item.item_id),
+    url: item.url,
+    title: item.ext_title || [item.make, item.model].filter(Boolean).join(' '),
+    make: item.make ?? null,
+    model: item.model ?? null,
+    sellerType: item.ext_user_type === 'business' ? 'salon' : item.ext_user_type ? 'privatno' : null,
+    sellerName: item.seller ?? null,
+    bodyType: specValue(item.ext_specs, /karoserij|body/i),
+    description: item.ext_description ?? null,
+    price: typeof item.price === 'number' ? Math.round(item.price) : null,
+    year: item.year ?? null,
+    mileage: digits ? Number(digits) : null,
+    fuel,
+    location: item.location ?? null,
+    imageUrl: item.images?.[0] ?? null,
+    gallery: item.images ?? [],
+    postedAt: item.date_published ?? null,
+  }
+}
+
+async function fetchViaApify(config, settings, isSeen) {
+  const makes = [...new Set(config.models.map((entry) => entry.make))]
+  const items = await runActor(settings.actor ?? APIFY_ACTOR, {
+    data_freshness: 'live',
+    startUrls: makes.map((make) => ({ url: buildMakeUrl(config, make) })),
+    maxItems: settings.maxItems ?? APIFY_MAX_ITEMS,
+    scrapeDetail: settings.scrapeDetail ?? false,
+    outputSchema: 'english',
+  })
+
+  const fuel = FUEL_LABELS[FUEL_IDS[normalize(config.criteria.fuelAllow[0])]] ?? null
+  const listings = []
+  const prices = []
+  let matched = 0
+  let known = 0
+
+  for (const item of items) {
+    if (!item?.item_id || !wantedModel(config, item.make, item.model)) continue
+    const listing = fromApifyItem(item, fuel)
+    matched += 1
+
+    if (isSeen(listing.externalId)) {
+      known += 1
+      prices.push({ externalId: listing.externalId, price: listing.price })
+    } else {
+      listings.push(listing)
+    }
+  }
+
+  return { listings, prices, matched, known }
+}
+
 function buildSearchUrl(config, vehicleIds, page) {
   const params = new URLSearchParams({ sort: 'new', page: String(page) })
   params.set('yearManufactured[min]', String(config.criteria.yearMin))
@@ -132,7 +228,11 @@ function toListing(ad, fuel) {
   }
 }
 
-export async function fetchListings(config, { isSeen = () => false } = {}) {
+export async function fetchListings(config, { isSeen = () => false, settings = {} } = {}) {
+  // Izravan dohvat radi samo dok nas njihova bot-zaštita pušta; preko Apifyja pristup
+  // rješava netko drugi, uz trošak po oglasu.
+  if (settings.via === 'apify') return fetchViaApify(config, settings, isSeen)
+
   const vehicleIds = await loadVehicleIds(config.models)
   const fuel = FUEL_LABELS[FUEL_IDS[normalize(config.criteria.fuelAllow[0])]] ?? null
 

@@ -9,7 +9,7 @@ Stvari uočene izvan trenutne faze — da se ne skreće s teme, ali ni ne zabora
 
 ## Izvori koji čekaju odluku vlasnika
 
-- **Njuškalo:** modul je napisan i uključen, ali ovaj IP je blokiran. Provjeriti prvo automatsko pokretanje; ako i ondje pada, ide na email alert.
+- **Njuškalo:** ide preko Apify actora. Prvi pokretanje s tokenom treba provjeriti — jesu li marka, model, kilometraža i cijena dobro pročitani iz onoga što actor vrati.
 - **mobile.de:** Akamai blokira već prvi zahtjev. Ide na spremljenu pretragu + email alert. Za to treba: (1) spremljene pretrage, (2) IMAP pristup mailu, (3) **jedan primjer takvog maila** da se parser piše po stvarnom sadržaju.
 - **Facebook Marketplace:** CLAUDE.md 2.3 — ne kreće bez odluke o pristupu (osobni nalog vs. plaćeni servis).
 - **auti.hr:** kandidat za scraping. Nema bot-zaštite, ali filteri su neprozirni (`search[1][96]=389`); sve opcije s ID-jevima stoje u HTML-u stranice pretrage, pa mapiranje treba jedan dohvat.
