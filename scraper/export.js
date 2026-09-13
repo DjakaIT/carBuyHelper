@@ -1,51 +1,51 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { loadConfig } from "./config.js";
-import { openDb, priceHistory } from "./db.js";
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { loadConfig } from './config.js'
+import { openDb, priceHistory } from './db.js'
 
 const OUT_PATH = fileURLToPath(
-  new URL("../public/data/listings.json", import.meta.url),
-);
+  new URL('../public/data/listings.json', import.meta.url),
+)
 
 // Dashboard je statična stranica i ne može otvoriti SQLite, pa dnevni posao izveze snapshot.
 // Opis se skraćuje jer kartica prikazuje samo uvod — cijeli tekst je na izvoru, jedan klik dalje.
-const EXCERPT_LIMIT = 300;
+const EXCERPT_LIMIT = 300
 
 function excerpt(description) {
-  if (!description) return null;
-  const text = description.replace(/\s+/g, " ").trim();
-  if (text.length <= EXCERPT_LIMIT) return text;
-  const cut = text.slice(0, EXCERPT_LIMIT);
-  return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+  if (!description) return null
+  const text = description.replace(/\s+/g, ' ').trim()
+  if (text.length <= EXCERPT_LIMIT) return text
+  const cut = text.slice(0, EXCERPT_LIMIT)
+  return `${cut.slice(0, cut.lastIndexOf(' '))}…`
 }
 
-const config = loadConfig();
+const config = loadConfig()
 
 const normalize = (value) =>
-  (value ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  (value ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 
-// Izvori imenuju izvedenice zasebno ("Passat Variant", "A5 Sportback"). Filter u sucelju nudi
+// Izvori imenuju izvedenice zasebno ('Passat Variant', 'A5 Sportback'). Filter u sucelju nudi
 // modele iz configa, pa se izvedenica svrstava pod svoju obitelj; puni naziv ostaje u naslovu.
 function family(make, model) {
-  const wanted = normalize(model);
+  const wanted = normalize(model)
   const match = config.models.find((entry) => {
-    if (normalize(entry.make) !== normalize(make)) return false;
-    const name = normalize(entry.model);
-    return wanted === name || wanted.startsWith(name + " ");
-  });
-  // Izvori pisu marku razlicito ("Skoda" vs "Škoda"); filter treba jedan naziv po modelu.
-  return match ?? { make, model };
+    if (normalize(entry.make) !== normalize(make)) return false
+    const name = normalize(entry.model)
+    return wanted === name || wanted.startsWith(name + ' ')
+  })
+  // Izvori pisu marku razlicito ('Skoda' vs 'Škoda'); filter treba jedan naziv po modelu.
+  return match ?? { make, model }
 }
 
-const db = openDb();
+const db = openDb()
 
 // Povijest ide uz oglas samo ako ima što reći — jedna zabiljezena cijena je pocetna, ne promjena.
-const history = new Map();
+const history = new Map()
 for (const row of priceHistory(db)) {
-  const key = `${row.source_id}:${row.external_id}`;
-  if (!history.has(key)) history.set(key, []);
-  history.get(key).push({ price: row.price, at: row.seen_at });
+  const key = `${row.source_id}:${row.external_id}`
+  if (!history.has(key)) history.set(key, [])
+  history.get(key).push({ price: row.price, at: row.seen_at })
 }
 
 const rows = db
@@ -58,12 +58,12 @@ const rows = db
   order by first_seen_at desc, coalesce(posted_at, '') desc
 `,
   )
-  .all();
-db.close();
+  .all()
+db.close()
 
 const listings = rows.map((row) => {
-  const id = `${row.source_id}:${row.external_id}`;
-  const prices = history.get(id) ?? [];
+  const id = `${row.source_id}:${row.external_id}`
+  const prices = history.get(id) ?? []
   return {
     source: row.source_id,
     id,
@@ -83,16 +83,16 @@ const listings = rows.map((row) => {
     postedAt: row.posted_at,
     firstSeenAt: row.first_seen_at,
     ...(prices.length > 1 ? { prices } : {}),
-  };
-});
+  }
+})
 
-mkdirSync(dirname(OUT_PATH), { recursive: true });
+mkdirSync(dirname(OUT_PATH), { recursive: true })
 writeFileSync(
   OUT_PATH,
-  JSON.stringify({ generatedAt: new Date().toISOString(), listings }),
-);
+  JSON.stringify({ generatedAt: new Date().toISOString(), criteria: config.criteria, listings }),
+)
 
-const kb = Math.round(JSON.stringify(listings).length / 1024);
+const kb = Math.round(JSON.stringify(listings).length / 1024)
 console.log(
   `Izvezeno ${listings.length} oglasa u public/data/listings.json (${kb} kB)`,
-);
+)

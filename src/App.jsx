@@ -11,6 +11,21 @@ const DATA_URL = `${import.meta.env.BASE_URL}data/listings.json`
 const OPENED_AT = Date.now()
 const VISIT_KEY = 'autoradar:lastVisit'
 
+const numbers = new Intl.NumberFormat('hr-HR', { maximumFractionDigits: 0 })
+
+function describeCriteria(criteria) {
+  if (!criteria) return ''
+  return [
+    criteria.fuelAllow?.join(' ili '),
+    criteria.yearMin && `godište ${criteria.yearMin}+`,
+    criteria.priceMax && `do ${numbers.format(criteria.priceMax)} €`,
+    criteria.mileageMax && `do ${numbers.format(criteria.mileageMax)} km`,
+    criteria.bodyTypes?.join(' i '),
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
 // Oglasi pristigli od zadnjeg posjeta jednom bljesnu pri učitavanju — jedina animacija u listi.
 function readLastVisit() {
   try {
@@ -74,7 +89,7 @@ export default function App() {
           <h1>
             Auto<span>Radar</span>
           </h1>
-          <p>benzin, godište 2020+, do 100.000 km, bez karavana</p>
+          <p>{describeCriteria(data?.criteria)}</p>
         </div>
         <dl className="masthead-stats">
           <div>
