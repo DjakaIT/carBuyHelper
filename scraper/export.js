@@ -91,7 +91,7 @@ const listings = rows.map((row) => {
 mkdirSync(dirname(OUT_PATH), { recursive: true })
 writeFileSync(
   OUT_PATH,
-  JSON.stringify({ generatedAt: new Date().toISOString(), criteria: config.criteria, listings }),
+  JSON.stringify({ generatedAt: new Date().toISOString(), criteria: config.criteria, models: config.models, listings }),
 )
 
 const kb = Math.round(JSON.stringify(listings).length / 1024)

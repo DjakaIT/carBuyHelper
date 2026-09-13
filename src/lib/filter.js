@@ -40,9 +40,9 @@ export const EMPTY_FILTERS = {
   sort: 'najnovije',
 }
 
-export const isFiltered = (filters) =>
-  Object.entries(EMPTY_FILTERS).some(
-    ([key, empty]) => key !== 'sort' && String(filters[key]) !== String(empty),
+export const isFiltered = (filters, defaults = EMPTY_FILTERS) =>
+  Object.keys(EMPTY_FILTERS).some(
+    (key) => key !== 'sort' && String(filters[key]) !== String(defaults[key] ?? EMPTY_FILTERS[key]),
   )
 
 export function applyFilters(listings, filters, freshSince) {

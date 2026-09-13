@@ -150,3 +150,11 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 - **Kod njih se model ne može filtrirati na izvoru.** Slug `model/octavia` se tiho ignorira (vraća Karoq, Kodiaq, Fabiju), pa se model prosijava lokalno. Isto vrijedi za nepoznat slug marke — vrati sve marke umjesto greške, zato se svaki oglas provjerava po marki i modelu prije spremanja.
 - **Marka se u njihovim naslovima piše skraćeno ("VW"), model s razmakom umjesto crtice ("T Cross"), a naslov ne počinje uvijek markom ("Prodajem Nissan Qashqai…").** Usporedba zato izjednačava crtice i razmake, poznaje skraćenice i traži naziv bilo gdje u naslovu.
 - **Lokacija (županija) stoji samo na stranici oglasa i ne uvijek.** Dohvaća se jednim zahtjevom po novom oglasu; kad je nema, ostaje prazna umjesto da se pogađa.
+
+## 2026-09-13 — Linkovi na pretragu kod izvora i države na klik
+
+- **Strani oglasi s hrvatskih portala se više ne bacaju pri dohvatu.** Stižu u istom odgovoru (Index nosi i njemačke i slovenske prodavače), pa ih bacanje samo gubi do sljedećeg dohvata. Sada se spremaju, a sučelje zadano prikazuje države iz `criteria.countries` — ostale su jedan klik daleko, bez novog dohvata.
+- **Cijeli strani portali ostaju iza configa.** Za razliku od oglasa koji ionako stignu, AutoScout24 znači nove zahtjeve, pa se i dalje uključuje samo kroz `criteria.countries`.
+- **Dodani linkovi na pretragu kod samog izvora**, složeni iz istih kriterija (`src/lib/outbound.js`). Njuškalo prima sve modele u jednom upitu (`vehicleIds`), pa jedan žuti gumb pokriva cijelu listu i otvara se spreman za njihovu "spremljenu pretragu". AutoScout24 ide po modelu, pa link prati odabrani model iz filtera.
+- **Njuškalo ID-jevi modela stoje u configu (`njuskaloIds`) i ne pogađaju se.** Provjereni su samo Audi A5/A6/A7 (iz njihove stranice marke, prije blokade). Model bez poznatog ID-a ne ulazi u link — pretraga se tada sužava na marku, a ako ih je više, na sve marke uz ostale kriterije. Bolje nego da gumb nestane ili da vodi na krivu listu.
+- **mobile.de se ne može provjeriti odavde.** Blokira i običan dohvat i pravi preglednik (Akamai, "Zugriff verweigert"), pa im format URL-a ne mogu potvrditi — a nepotvrđen link ne ide u sučelje. Treba jedan primjer njihove pretrage iz preglednika, kao onaj koji je dan za Njuškalo.

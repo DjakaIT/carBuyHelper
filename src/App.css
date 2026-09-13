@@ -528,3 +528,49 @@ main {
     margin-left: 0;
   }
 }
+
+/* Linkovi na pretragu kod izvora — vode van, pa izgledaju drugačije od filtera. */
+.outbound {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.outbound-label {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.outbound-link {
+  height: 29px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.outbound-link[data-portal='njuskalo'] {
+  background: #ffd400;
+  border-color: #ffd400;
+  color: #17181c;
+}
+
+.outbound-link[data-portal='autoscout24'] {
+  background: var(--high);
+  border-color: var(--high);
+  color: #17181c;
+}
+
+.outbound-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

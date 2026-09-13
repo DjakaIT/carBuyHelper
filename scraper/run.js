@@ -26,14 +26,14 @@ async function runSource(db, source, config) {
     settings: config.sources[source.id],
   })
   const allowWagons = config.criteria.bodyTypes?.includes('karavan')
-  // Hrvatski portali nose i oglase stranih salona; država oglasa odlučuje, ne portal.
-  const wanted = listings.filter(
-    (listing) =>
-      (allowWagons || !isWagon(listing)) &&
-      (listing.country == null || config.criteria.countries.includes(listing.country)),
-  )
-  const mislabelled = listings.filter((listing) => !allowWagons && isWagon(listing)).length
-  const foreign = listings.length - wanted.length - mislabelled
+  const wanted = listings.filter((listing) => allowWagons || !isWagon(listing))
+  const mislabelled = listings.length - wanted.length
+
+  // Oglasi stranih prodavača s hrvatskih portala se spremaju; u sučelju ih filtar država
+  // pokazuje ili skriva bez novog dohvata.
+  const foreign = wanted.filter(
+    (listing) => listing.country && !config.criteria.countries.includes(listing.country),
+  ).length
 
   const inserted = insertListings(db, wanted)
   const repriced = recordPrices(db, source.id, prices)
@@ -47,7 +47,7 @@ async function runSource(db, source, config) {
     `${repriced} promjena cijene`,
   ]
   if (mislabelled > 0) notes.push(`${mislabelled} krivo označenih karavana odbačeno`)
-  if (foreign > 0) notes.push(`${foreign} izvan traženih država`)
+  if (foreign > 0) notes.push(`${foreign} iz drugih država (vidljivo na filtar)`)
   console.log(`${source.label}: ${notes.join(', ')}`)
 }
 

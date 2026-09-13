@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { EMPTY_FILTERS, SORT_OPTIONS, isFiltered } from '../lib/filter.js'
+import { autoscout24Url, njuskaloUrl } from '../lib/outbound.js'
 import { sourceLabel } from '../lib/sources.js'
 
 const COUNTRY_LABELS = {
@@ -30,8 +31,22 @@ function Toggle({ pressed, onClick, children, source }) {
   )
 }
 
-export default function Filters({ facets, filters, onChange, shown, total }) {
+export default function Filters({ facets, filters, onChange, shown, total, defaults, criteria, models }) {
   const searchRef = useRef(null)
+
+  // Pretraga kod samog izvora, s istim kriterijima: za portale koje ne dohvaćamo (Njuškalo)
+  // i za tržišta koja nisu uključena (Njemačka, Austrija). Ako je model odabran, link ga slijedi.
+  const chosen = (models ?? []).filter(
+    (model) => filters.models.length === 0 || filters.models.includes(model.model),
+  )
+  const outbound = [
+    { id: 'njuskalo', label: 'Njuškalo', href: njuskaloUrl(criteria, chosen) },
+    {
+      id: 'autoscout24',
+      label: 'AutoScout24 (DE, AT)',
+      href: autoscout24Url(criteria, chosen.length === 1 ? chosen[0] : null),
+    },
+  ].filter((link) => link.href)
 
   // Tipka "/" vodi na pretragu — lista se skenira tipkovnicom, ne mišem.
   useEffect(() => {
@@ -180,16 +195,33 @@ export default function Filters({ facets, filters, onChange, shown, total }) {
           {shown === total ? `${total} oglasa` : `${shown} od ${total} oglasa`}
         </p>
 
-        {isFiltered(filters) && (
+        {isFiltered(filters, defaults) && (
           <button
             type="button"
             className="reset"
-            onClick={() => onChange({ ...EMPTY_FILTERS, sort: filters.sort })}
+            onClick={() => onChange({ ...(defaults ?? EMPTY_FILTERS), sort: filters.sort })}
           >
             Očisti filtere
           </button>
         )}
       </div>
+      {outbound.length > 0 && (
+        <div className="outbound">
+          <span className="outbound-label">Otvori pretragu kod izvora</span>
+          {outbound.map((link) => (
+            <a
+              key={link.id}
+              className="outbound-link"
+              data-portal={link.id}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
     </form>
   )
 }

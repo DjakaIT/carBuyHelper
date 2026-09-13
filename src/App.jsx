@@ -41,6 +41,7 @@ export default function App() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [defaults, setDefaults] = useState(EMPTY_FILTERS)
   const [lastVisit] = useState(readLastVisit)
   const now = OPENED_AT
 
@@ -51,7 +52,14 @@ export default function App() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.json()
       })
-      .then((json) => !cancelled && setData(json))
+      .then((json) => {
+        if (cancelled) return
+        setData(json)
+        // Zadano se prikazuju države iz kriterija; ostale su jedan klik daleko.
+        const start = { ...EMPTY_FILTERS, countries: json.criteria?.countries ?? [] }
+        setDefaults(start)
+        setFilters(start)
+      })
       .catch((err) => !cancelled && setError(err.message))
     return () => {
       cancelled = true
@@ -136,6 +144,9 @@ export default function App() {
               onChange={setFilters}
               shown={shown.length}
               total={listings.length}
+              defaults={defaults}
+              criteria={data.criteria}
+              models={data.models}
             />
 
             {shown.length === 0 ? (
