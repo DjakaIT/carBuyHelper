@@ -1,122 +1,149 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useMemo, useState } from 'react'
+import Filters from './components/Filters.jsx'
+import Listing from './components/Listing.jsx'
+import { DAY_MS, isFresh } from './lib/format.js'
+import { EMPTY_FILTERS, applyFilters } from './lib/filter.js'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const DATA_URL = `${import.meta.env.BASE_URL}data/listings.json`
+// Trenutak učitavanja: "novo u 24 h" i relativna vremena ne smiju se pomicati pri svakom renderu.
+const OPENED_AT = Date.now()
+const VISIT_KEY = 'autoradar:lastVisit'
+
+// Oglasi pristigli od zadnjeg posjeta jednom bljesnu pri učitavanju — jedina animacija u listi.
+function readLastVisit() {
+  try {
+    return Number(localStorage.getItem(VISIT_KEY)) || 0
+  } catch {
+    return 0
+  }
+}
+
+export default function App() {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [lastVisit] = useState(readLastVisit)
+  const now = OPENED_AT
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(DATA_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then((json) => !cancelled && setData(json))
+      .catch((err) => !cancelled && setError(err.message))
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VISIT_KEY, String(Date.now()))
+    } catch {
+      // privatni prozor ili blokirana pohrana — highlight otpada, ostalo radi
+    }
+  }, [])
+
+  const listings = useMemo(() => data?.listings ?? [], [data])
+
+  const facets = useMemo(
+    () => ({
+      sources: [...new Set(listings.map((listing) => listing.source))].sort(),
+      models: [...new Set(listings.map((listing) => listing.model).filter(Boolean))].sort(),
+    }),
+    [listings],
+  )
+
+  const shown = useMemo(() => applyFilters(listings, filters, now - DAY_MS), [listings, filters, now])
+
+  const freshCount = listings.filter((listing) => isFresh(listing.firstSeenAt, now)).length
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+      <header className="masthead">
+        <div className="masthead-brand">
+          <h1>AutoRadar</h1>
+          <p>benzin, godište 2020+, odabrani modeli</p>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+        <dl className="masthead-stats">
+          <div>
+            <dt>Oglasa</dt>
+            <dd>{listings.length}</dd>
+          </div>
+          <div>
+            <dt>Novih u 24 h</dt>
+            <dd>{freshCount}</dd>
+          </div>
+          <div>
+            <dt>Osvježeno</dt>
+            <dd>
+              {data?.generatedAt
+                ? new Intl.DateTimeFormat('hr-HR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }).format(new Date(data.generatedAt))
+                : '—'}
+            </dd>
+          </div>
+        </dl>
+      </header>
+
+      <main>
+        {error && (
+          <p className="notice notice--error">
+            Podaci se ne mogu učitati ({error}). Pokreni <code>npm run refresh</code>.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        )}
 
-      <div className="ticks"></div>
+        {!error && !data && <p className="notice">Učitavam oglase…</p>}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {data && (
+          <>
+            <Filters
+              facets={facets}
+              filters={filters}
+              onChange={setFilters}
+              shown={shown.length}
+              total={listings.length}
+            />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+            {shown.length === 0 ? (
+              <p className="notice">Nijedan oglas ne odgovara filterima.</p>
+            ) : (
+              <>
+                <div className="list-head" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span>Vozilo</span>
+                  <span>Godište</span>
+                  <span>Kilometraža</span>
+                  <span>Gorivo</span>
+                  <span>Cijena</span>
+                </div>
+                <ol className="list">
+                  {shown.map((listing) => (
+                    <Listing
+                      key={listing.id}
+                      listing={listing}
+                      now={now}
+                      fresh={isFresh(listing.firstSeenAt, now)}
+                      newSinceVisit={
+                        lastVisit > 0 && new Date(listing.firstSeenAt).getTime() > lastVisit
+                      }
+                    />
+                  ))}
+                </ol>
+              </>
+            )}
+          </>
+        )}
+      </main>
     </>
   )
 }
-
-export default App

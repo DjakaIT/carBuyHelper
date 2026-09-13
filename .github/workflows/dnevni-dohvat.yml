@@ -1,0 +1,42 @@
+name: Dnevni dohvat oglasa
+
+on:
+  schedule:
+    # 05:00 UTC = 07:00 ljeti / 06:00 zimi po hrvatskom vremenu
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dohvat
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      # run.js preživi pad pojedinog izvora, pa se sprema ono što je dohvaćeno.
+      - run: npm run refresh
+
+      - name: Spremi deltu u repo
+        run: |
+          git config user.name 'autoradar'
+          git config user.email 'autoradar@users.noreply.github.com'
+          git add data/autoradar.sqlite public/data/listings.json
+          if git diff --staged --quiet; then
+            echo 'Nema novih oglasa.'
+          else
+            git commit -m "Oglasi: $(date -u '+%Y-%m-%d')"
+            git push
+          fi

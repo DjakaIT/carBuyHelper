@@ -1,0 +1,77 @@
+{
+  "criteria": {
+    "fuelAllow": [
+      "benzin"
+    ],
+    "yearMin": 2020,
+    "mileageMax": 100000,
+    "bodyTypes": [
+      "limuzina",
+      "suv",
+      "coupe",
+      "hatchback"
+    ]
+  },
+  "models": [
+    {
+      "make": "Škoda",
+      "model": "Octavia"
+    },
+    {
+      "make": "Audi",
+      "model": "A5"
+    },
+    {
+      "make": "Audi",
+      "model": "A6"
+    },
+    {
+      "make": "Audi",
+      "model": "A7"
+    },
+    {
+      "make": "Volkswagen",
+      "model": "T-Roc"
+    },
+    {
+      "make": "Volkswagen",
+      "model": "Arteon"
+    },
+    {
+      "make": "Volkswagen",
+      "model": "Passat"
+    },
+    {
+      "make": "Volvo",
+      "model": "S60"
+    },
+    {
+      "make": "Volvo",
+      "model": "S70"
+    },
+    {
+      "make": "Volvo",
+      "model": "S80"
+    },
+    {
+      "make": "Volvo",
+      "model": "S90"
+    }
+  ],
+  "sources": {
+    "index-oglasi": {
+      "enabled": true
+    },
+    "autoscout24": {
+      "enabled": true,
+      "countries": [
+        "D",
+        "A"
+      ],
+      "maxPagesPerModel": 2
+    },
+    "njuskalo": {
+      "enabled": true
+    }
+  }
+}

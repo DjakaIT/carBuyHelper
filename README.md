@@ -1,16 +1,66 @@
-# React + Vite
+# AutoRadar
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Osobni agregator oglasa rabljenih automobila. Jednom dnevno pokupi nove oglase prema fiksnim kriterijima (benzin, godište 2020+, allowlist modela), spremi ih i prikaže u dashboardu s filterima.
 
-Currently, two official plugins are available:
+Specifikacija i pravila rada: [CLAUDE.md](CLAUDE.md). Donesene odluke: [DECISIONS.md](DECISIONS.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Izvori
 
-## React Compiler
+| Izvor | Stanje |
+| --- | --- |
+| Index oglasi | radi — puni podaci s opisom |
+| AutoScout24 | radi — Njemačka i Austrija, bez opisa |
+| Njuškalo, mobile.de | blokiraju automatski dohvat; idu preko email alerta (vidi TODO.md) |
+| Facebook Marketplace | čeka odluku o pristupu |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+- **Scraper:** Node 24 (ESM), pohrana u SQLite kroz ugrađeni `node:sqlite`
+- **Frontend:** React + Vite, statični build
+- **Kriteriji pretrage:** `config/models.json`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Traži se Node >= 24 (zbog `node:sqlite`).
+
+## Skripte
+
+```bash
+npm install
+npm run refresh  # dohvat + izvoz snapshota za dashboard
+npm run scrape   # samo dohvat
+npm run export   # samo izvoz public/data/listings.json
+npm test         # testovi scrapera
+npm run dev      # dashboard, dev server
+npm run build    # produkcijski build
+npm run lint
+```
+
+## Struktura
+
+```
+config/models.json      kriteriji pretrage (marke/modeli, gorivo, godište, izvori)
+scraper/run.js          ulazna točka dnevnog posla
+scraper/config.js       učitavanje i validacija configa
+scraper/http.js         HTTP klijent (sesija, throttle, retry)
+scraper/db.js           SQLite shema i spremanje
+scraper/sources/        jedan modul po izvoru oglasa
+scraper/export.js       SQLite -> public/data/listings.json
+data/autoradar.sqlite   baza spremljenih oglasa (u repou)
+src/                    React dashboard
+```
+
+## Status po fazama
+
+| Faza | Opis | Status |
+| --- | --- | --- |
+| 0 | Repo setup, config, skeleton scrapera | gotovo |
+| 1 | Index oglasi end-to-end (dohvat, parse, SQLite, dedup) | gotovo |
+| 2 | Dashboard: lista + filteri | gotovo |
+| 3 | Dodatni izvori | AutoScout24 gotov, ostali čekaju email alert |
+| 4 | Facebook Marketplace (uvjetno) | čeka odluku |
+| 5 | GitHub Actions cron + deploy | gotovo |
+
+## Deploy
+
+Dnevni posao je GitHub Actions workflow (`.github/workflows/dnevni-dohvat.yml`): dohvati nove
+oglase, izveze snapshot i commita promjenu natrag u repo. Frontend je statičan build — Netlify
+čita `netlify.toml`, a za Cloudflare Pages vrijede iste postavke (build `npm run build`, izlaz `dist`).

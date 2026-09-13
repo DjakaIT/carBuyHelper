@@ -1,0 +1,160 @@
+import { useEffect, useRef } from 'react'
+import { EMPTY_FILTERS, SORT_OPTIONS, isFiltered } from '../lib/filter.js'
+import { sourceLabel } from '../lib/sources.js'
+
+function Toggle({ pressed, onClick, children }) {
+  return (
+    <button type="button" className="chip" aria-pressed={pressed} onClick={onClick}>
+      {children}
+    </button>
+  )
+}
+
+export default function Filters({ facets, filters, onChange, shown, total }) {
+  const searchRef = useRef(null)
+
+  // Tipka "/" vodi na pretragu — lista se skenira tipkovnicom, ne mišem.
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey) return
+      if (document.activeElement?.matches('input, select, textarea')) return
+      event.preventDefault()
+      searchRef.current?.focus()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  const set = (patch) => onChange({ ...filters, ...patch })
+  const toggle = (key, value) =>
+    set({
+      [key]: filters[key].includes(value)
+        ? filters[key].filter((item) => item !== value)
+        : [...filters[key], value],
+    })
+
+  return (
+    <form className="filters" onSubmit={(event) => event.preventDefault()}>
+      <div className="filters-row">
+        <label className="field field--search">
+          <span className="field-label">Pretraga</span>
+          <input
+            ref={searchRef}
+            type="search"
+            value={filters.query}
+            placeholder="naslov, oprema, mjesto"
+            onChange={(event) => set({ query: event.target.value })}
+          />
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+
+        <div className="chips" role="group" aria-label="Izvor">
+          {facets.sources.map((source) => (
+            <Toggle
+              key={source}
+              pressed={filters.sources.includes(source)}
+              onClick={() => toggle('sources', source)}
+            >
+              {sourceLabel(source)}
+            </Toggle>
+          ))}
+        </div>
+
+        <div className="chips" role="group" aria-label="Prodavač">
+          {['salon', 'privatno'].map((type) => (
+            <Toggle
+              key={type}
+              pressed={filters.sellerTypes.includes(type)}
+              onClick={() => toggle('sellerTypes', type)}
+            >
+              {type}
+            </Toggle>
+          ))}
+        </div>
+
+        <Toggle pressed={filters.freshOnly} onClick={() => set({ freshOnly: !filters.freshOnly })}>
+          samo novo
+        </Toggle>
+
+        <Toggle
+          pressed={filters.droppedOnly}
+          onClick={() => set({ droppedOnly: !filters.droppedOnly })}
+        >
+          pala cijena
+        </Toggle>
+      </div>
+
+      <div className="chips chips--models" role="group" aria-label="Model">
+        {facets.models.map((model) => (
+          <Toggle
+            key={model}
+            pressed={filters.models.includes(model)}
+            onClick={() => toggle('models', model)}
+          >
+            {model}
+          </Toggle>
+        ))}
+      </div>
+
+      <div className="filters-row filters-row--numbers">
+        <label className="field field--number">
+          <span className="field-label">Cijena do (€)</span>
+          <input
+            type="number"
+            min="0"
+            step="500"
+            inputMode="numeric"
+            value={filters.priceMax}
+            onChange={(event) => set({ priceMax: event.target.value })}
+          />
+        </label>
+        <label className="field field--number">
+          <span className="field-label">Godište od</span>
+          <input
+            type="number"
+            min="1990"
+            max="2030"
+            inputMode="numeric"
+            value={filters.yearMin}
+            onChange={(event) => set({ yearMin: event.target.value })}
+          />
+        </label>
+        <label className="field field--number">
+          <span className="field-label">Kilometraža do</span>
+          <input
+            type="number"
+            min="0"
+            step="5000"
+            inputMode="numeric"
+            value={filters.mileageMax}
+            onChange={(event) => set({ mileageMax: event.target.value })}
+          />
+        </label>
+        <label className="field field--sort">
+          <span className="field-label">Sortiraj</span>
+          <select value={filters.sort} onChange={(event) => set({ sort: event.target.value })}>
+            {SORT_OPTIONS.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <p className="filters-count" role="status">
+          {shown === total ? `${total} oglasa` : `${shown} od ${total} oglasa`}
+        </p>
+
+        {isFiltered(filters) && (
+          <button
+            type="button"
+            className="reset"
+            onClick={() => onChange({ ...EMPTY_FILTERS, sort: filters.sort })}
+          >
+            Očisti filtere
+          </button>
+        )}
+      </div>
+    </form>
+  )
+}

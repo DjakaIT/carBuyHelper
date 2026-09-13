@@ -3,8 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
+    "scrape": "node --disable-warning=ExperimentalWarning scraper/run.js",
+    "export": "node --disable-warning=ExperimentalWarning scraper/export.js",
+    "refresh": "npm run scrape && npm run export",
+    "test": "node --disable-warning=ExperimentalWarning --test \"scraper/**/*.test.js\" \"src/**/*.test.js\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
