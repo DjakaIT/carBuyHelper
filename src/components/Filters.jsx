@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { EMPTY_FILTERS, SORT_OPTIONS, isFiltered } from '../lib/filter.js'
-import { autoscout24Url, njuskaloUrl } from '../lib/outbound.js'
+import { autoscout24Url, njuskaloScope, njuskaloUrl } from '../lib/outbound.js'
 import { sourceLabel } from '../lib/sources.js'
 
 const COUNTRY_LABELS = {
@@ -49,8 +49,18 @@ export default function Filters({
   const chosen = (models ?? []).filter(
     (model) => filters.models.length === 0 || filters.models.includes(model.model),
   )
+  // Gumb kaže što će stvarno otvoriti: pretragu po modelima, po marki ili po svim markama.
+  const njuskaloLabels = {
+    models: 'Njuškalo',
+    make: 'Njuškalo (cijela marka)',
+    all: 'Njuškalo (sve marke)',
+  }
   const outbound = [
-    { id: 'njuskalo', label: 'Njuškalo', href: njuskaloUrl(criteria, chosen, overrides) },
+    {
+      id: 'njuskalo',
+      label: njuskaloLabels[njuskaloScope(chosen)],
+      href: njuskaloUrl(criteria, chosen, overrides),
+    },
     {
       id: 'autoscout24',
       label: 'AutoScout24 (DE, AT)',

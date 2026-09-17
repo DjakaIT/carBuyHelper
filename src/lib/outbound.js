@@ -25,13 +25,25 @@ const slug = (value) => normalize(value).replace(/\s+/g, '-')
  * Njuškalo prima sve modele u jednom upitu (`vehicleIds`), pa jedan link pokriva cijelu listu.
  * Modeli bez poznatog ID-a ispadaju iz linka — ID se ne pogađa.
  */
+/**
+ * Koliko precizno link može pogoditi traženo: po modelima (imamo ID za svaki), po marki, ili
+ * nikako. Ako ID fali makar jednom modelu, ne šalju se ID-jevi uopće — inače bi se pretraga
+ * tiho svela na one modele za koje ID postoji i izgledala kao da ostalih nema.
+ */
+export function njuskaloScope(models) {
+  if (models.length > 0 && models.every((model) => model.njuskaloIds?.length > 0)) return 'models'
+  return [...new Set(models.map((model) => model.make))].length === 1 ? 'make' : 'all'
+}
+
 export function njuskaloUrl(baseCriteria, models, overrides = {}) {
   if (!baseCriteria) return null
   const criteria = { ...baseCriteria, ...overrides }
 
-  const ids = models.flatMap((model) => model.njuskaloIds ?? [])
+  const scope = njuskaloScope(models)
   const params = new URLSearchParams()
-  if (ids.length > 0) params.set('vehicleIds', ids.join(','))
+  if (scope === 'models') {
+    params.set('vehicleIds', models.flatMap((model) => model.njuskaloIds).join(','))
+  }
   params.set('onlyFullPrice', '1')
   params.set('yearManufactured[min]', String(criteria.yearMin))
   if (criteria.priceMax != null) params.set('price[max]', String(criteria.priceMax))
@@ -46,10 +58,7 @@ export function njuskaloUrl(baseCriteria, models, overrides = {}) {
     if (id) params.append('bodyTypeId', String(id))
   }
 
-  // Za modele bez poznatog ID-a pretraga se sužava koliko se može: na marku ako je jedna,
-  // inače na sve marke uz ostale kriterije. Bolje nego da gumb nestane.
-  const makes = [...new Set(models.map((model) => model.make))]
-  const path = ids.length === 0 && makes.length === 1 ? `/auti/${slug(makes[0])}` : '/auti'
+  const path = scope === 'make' ? `/auti/${slug(models[0].make)}` : '/auti'
 
   return `https://www.njuskalo.hr${path}?${params}`
 }

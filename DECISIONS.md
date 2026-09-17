@@ -170,3 +170,10 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 
 - **Linkovi na Njuškalo i AutoScout24 smiju biti uži od onoga što radar skuplja.** Novi blok `outbound` u configu nadjačava kriterije samo pri slaganju tih linkova; trenutno drži `yearMin: 2021`, dok dohvat i dalje skuplja od 2020. Razlog: kod njih se otvara spremljena pretraga koju se želi držati užom, a lokalna baza svejedno pamti i stariji oglas ako se pojavi.
 - **Karoserija se ne dira** — i dohvat i linkovi već traže samo limuzinu i SUV (Njuškalo `bodyTypeId=21,380`, AutoScout24 `body=6,4`).
+
+## 2026-09-17 — Njuškalo link se više ne sužava tiho na poznate modele
+
+- **Ako ijednom traženom modelu fali `njuskaloIds`, ID-jevi se ne šalju uopće.** Prije su se slali oni koje imamo (a imamo samo Audi A5/A6/A7), pa je link otvarao pretragu isključivo po Audijima i izgledalo je kao da Octavije, T-Roca i ostalih nema. Sad se u tom slučaju otvara pretraga po marki (ako je jedna) ili po svim markama, uz sve ostale kriterije.
+- **Gumb piše što će otvoriti:** "Njuškalo", "Njuškalo (cijela marka)" ili "Njuškalo (sve marke)".
+- **ID-jevi se i dalje ne mogu pokupiti automatski.** Njuškalo blokira i običan dohvat i pravi preglednik (provjereno kroz Edge — vraća ShieldSquare CAPTCHA), pa ostatak ID-jeva mora doći iz vlasnikovog preglednika.
+- **Nula rezultata za Audije nije bio kvar.** Uz benzin, 2021+, do 23.000 € i do 93.000 km, A5/A6/A7 ne postoje ni u našoj bazi (0 oglasa iz sva tri izvora) — to su auti od 35.000 € naviše. Link je bio točan, samo je pokrivao tri najskuplja modela s popisa.
