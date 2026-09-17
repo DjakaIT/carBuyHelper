@@ -1,5 +1,6 @@
 /**
- * Linkovi na pretragu kod samog izvora, složeni iz istih kriterija koje koristi dohvat.
+ * Linkovi na pretragu kod samog izvora, složeni iz kriterija koje koristi dohvat, uz moguće
+ * pooštrenje iz `outbound` u configu (npr. novije godište nego što radar skuplja).
  * Koriste se za portale koje ne možemo dohvatiti (Njuškalo blokira) ili koji nisu uključeni
  * (strana tržišta) — tamo pretragu otvoriš u pregledniku i po potrebi je spremiš kod njih.
  */
@@ -24,8 +25,9 @@ const slug = (value) => normalize(value).replace(/\s+/g, '-')
  * Njuškalo prima sve modele u jednom upitu (`vehicleIds`), pa jedan link pokriva cijelu listu.
  * Modeli bez poznatog ID-a ispadaju iz linka — ID se ne pogađa.
  */
-export function njuskaloUrl(criteria, models) {
-  if (!criteria) return null
+export function njuskaloUrl(baseCriteria, models, overrides = {}) {
+  if (!baseCriteria) return null
+  const criteria = { ...baseCriteria, ...overrides }
 
   const ids = models.flatMap((model) => model.njuskaloIds ?? [])
   const params = new URLSearchParams()
@@ -56,8 +58,9 @@ export function njuskaloUrl(criteria, models) {
  * AutoScout24 ide po jednom modelu; bez odabranog modela otvara se pretraga po svim markama.
  * Države su njihova zapadna tržišta — ono što se kod nas ne dohvaća dok nije u kriterijima.
  */
-export function autoscout24Url(criteria, model, countries = ['DE', 'AT']) {
-  if (!criteria) return null
+export function autoscout24Url(baseCriteria, model, countries = ['DE', 'AT'], overrides = {}) {
+  if (!baseCriteria) return null
+  const criteria = { ...baseCriteria, ...overrides }
 
   const params = new URLSearchParams({ atype: 'C', sort: 'age', desc: '1' })
   params.set('fregfrom', String(criteria.yearMin))

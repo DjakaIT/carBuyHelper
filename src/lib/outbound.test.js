@@ -75,3 +75,18 @@ test('odabir država mijenja tržišta u linku', () => {
   const url = new URL(autoscout24Url(criteria, null, ['DE', 'IT']))
   assert.equal(url.searchParams.get('cy'), 'D,I')
 })
+
+test('pooštrenje iz configa nadjačava kriterije samo u linkovima', () => {
+  const nj = new URL(njuskaloUrl(criteria, models, { yearMin: 2021 }))
+  const as = new URL(autoscout24Url(criteria, null, ['DE', 'AT'], { yearMin: 2021 }))
+
+  assert.equal(nj.searchParams.get('yearManufactured[min]'), '2021')
+  assert.equal(as.searchParams.get('fregfrom'), '2021')
+  // ostalo ostaje kako je zadano
+  assert.equal(nj.searchParams.get('price[max]'), '23000')
+  assert.equal(as.searchParams.get('kmto'), '95000')
+})
+
+test('bez pooštrenja vrijedi godište iz kriterija', () => {
+  assert.equal(new URL(njuskaloUrl(criteria, models)).searchParams.get('yearManufactured[min]'), '2020')
+})

@@ -146,6 +146,7 @@ export default function App() {
               total={listings.length}
               defaults={defaults}
               criteria={data.criteria}
+              outbound={data.outbound}
               models={data.models}
             />
 

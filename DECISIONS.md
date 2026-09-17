@@ -165,3 +165,8 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 - **Ista provjera imala bi tvrdu grešku od siječnja do travnja.** `date -u +%j` za dane 001–099 vraća vodeću nulu, a bash to čita kao oktalni broj — `008` i `009` ruše aritmetiku ("value too great for base"), pa bi korak padao svaki dan do 9. travnja.
 - **Zamijenjeno pitanjem "je li već dohvaćeno danas".** Čita se `generatedAt` iz snapshota: ako je od danas, termin izađe u sekundi; ako nije, dohvaća. Time posao odradi onaj termin koji prvi prođe, kašnjenje ne može preskočiti dan, i nema aritmetike nad datumom.
 - **Nije potvrđeno je li workflow uopće pokretan.** `gh` na ovom računalu nije prijavljen, pa povijest Actions ne mogu pročitati; u repou nema nijednog commita bota, što znači ili da nije pokrenut ili da je svaki put preskočio. Ostale uobičajene uzroke (isključene Actions, potrošene minute na privatnom repou) treba provjeriti u Actions kartici.
+
+## 2026-09-17 — Pooštrenje linkova prema izvorima
+
+- **Linkovi na Njuškalo i AutoScout24 smiju biti uži od onoga što radar skuplja.** Novi blok `outbound` u configu nadjačava kriterije samo pri slaganju tih linkova; trenutno drži `yearMin: 2021`, dok dohvat i dalje skuplja od 2020. Razlog: kod njih se otvara spremljena pretraga koju se želi držati užom, a lokalna baza svejedno pamti i stariji oglas ako se pojavi.
+- **Karoserija se ne dira** — i dohvat i linkovi već traže samo limuzinu i SUV (Njuškalo `bodyTypeId=21,380`, AutoScout24 `body=6,4`).

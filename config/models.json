@@ -14,6 +14,9 @@
       "suv"
     ]
   },
+  "outbound": {
+    "yearMin": 2021
+  },
   "models": [
     {
       "make": "Škoda",

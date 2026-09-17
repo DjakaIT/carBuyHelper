@@ -31,7 +31,17 @@ function Toggle({ pressed, onClick, children, source }) {
   )
 }
 
-export default function Filters({ facets, filters, onChange, shown, total, defaults, criteria, models }) {
+export default function Filters({
+  facets,
+  filters,
+  onChange,
+  shown,
+  total,
+  defaults,
+  criteria,
+  outbound: overrides,
+  models,
+}) {
   const searchRef = useRef(null)
 
   // Pretraga kod samog izvora, s istim kriterijima: za portale koje ne dohvaćamo (Njuškalo)
@@ -40,11 +50,11 @@ export default function Filters({ facets, filters, onChange, shown, total, defau
     (model) => filters.models.length === 0 || filters.models.includes(model.model),
   )
   const outbound = [
-    { id: 'njuskalo', label: 'Njuškalo', href: njuskaloUrl(criteria, chosen) },
+    { id: 'njuskalo', label: 'Njuškalo', href: njuskaloUrl(criteria, chosen, overrides) },
     {
       id: 'autoscout24',
       label: 'AutoScout24 (DE, AT)',
-      href: autoscout24Url(criteria, chosen.length === 1 ? chosen[0] : null),
+      href: autoscout24Url(criteria, chosen.length === 1 ? chosen[0] : null, ['DE', 'AT'], overrides),
     },
   ].filter((link) => link.href)
 
