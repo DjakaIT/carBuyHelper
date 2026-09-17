@@ -30,8 +30,8 @@ const slug = (value) => normalize(value).replace(/\s+/g, '-')
  * nikako. Ako ID fali makar jednom modelu, ne šalju se ID-jevi uopće — inače bi se pretraga
  * tiho svela na one modele za koje ID postoji i izgledala kao da ostalih nema.
  */
-export function njuskaloScope(models) {
-  if (models.length > 0 && models.every((model) => model.njuskaloIds?.length > 0)) return 'models'
+export function njuskaloScope(models, overrides = {}) {
+  if (overrides.njuskaloVehicleIds?.length > 0) return 'models'
   return [...new Set(models.map((model) => model.make))].length === 1 ? 'make' : 'all'
 }
 
@@ -39,10 +39,10 @@ export function njuskaloUrl(baseCriteria, models, overrides = {}) {
   if (!baseCriteria) return null
   const criteria = { ...baseCriteria, ...overrides }
 
-  const scope = njuskaloScope(models)
+  const scope = njuskaloScope(models, overrides)
   const params = new URLSearchParams()
   if (scope === 'models') {
-    params.set('vehicleIds', models.flatMap((model) => model.njuskaloIds).join(','))
+    params.set('vehicleIds', overrides.njuskaloVehicleIds.join(','))
   }
   params.set('onlyFullPrice', '1')
   params.set('yearManufactured[min]', String(criteria.yearMin))

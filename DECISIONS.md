@@ -177,3 +177,9 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 - **Gumb piše što će otvoriti:** "Njuškalo", "Njuškalo (cijela marka)" ili "Njuškalo (sve marke)".
 - **ID-jevi se i dalje ne mogu pokupiti automatski.** Njuškalo blokira i običan dohvat i pravi preglednik (provjereno kroz Edge — vraća ShieldSquare CAPTCHA), pa ostatak ID-jeva mora doći iz vlasnikovog preglednika.
 - **Nula rezultata za Audije nije bio kvar.** Uz benzin, 2021+, do 23.000 € i do 93.000 km, A5/A6/A7 ne postoje ni u našoj bazi (0 oglasa iz sva tri izvora) — to su auti od 35.000 € naviše. Link je bio točan, samo je pokrivao tri najskuplja modela s popisa.
+
+## 2026-09-17 — Njuškalo ID-jevi dolaze iz configa, kao jedan popis
+
+- **`outbound.njuskaloVehicleIds` drži popis koji je vlasnik sam odabrao u njihovom sučelju** (26 ID-jeva). Zamjenjuje ranije `njuskaloIds` po modelu — njih smo imali samo za Audi, a mapiranje ID → model ne možemo provjeriti jer Njuškalo blokira i klijent i pravi preglednik.
+- **Posljedica: chip modela ne sužava Njuškalo link.** Link uvijek nosi cijeli odabrani popis. Suziti ga bi značilo znati koji ID pripada kojem modelu, a to bi bilo nagađanje.
+- **Karoserija ostaje iz configa (limuzina + SUV), ne iz zalijepljenog linka.** Zalijepljeni link imao je samo `bodyTypeId=21`, čime bi ispali Qashqai i T-Roc — a oni su izričito traženi.

@@ -58,7 +58,7 @@ export default function Filters({
   const outbound = [
     {
       id: 'njuskalo',
-      label: njuskaloLabels[njuskaloScope(chosen)],
+      label: njuskaloLabels[njuskaloScope(chosen, overrides)],
       href: njuskaloUrl(criteria, chosen, overrides),
     },
     {
