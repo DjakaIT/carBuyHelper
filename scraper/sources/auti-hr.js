@@ -37,9 +37,10 @@ const digits = (text) => {
   return only ? Number(only) : null
 }
 
-function searchUrl(config, make) {
-  const fuel = FUEL_SLUGS[normalize(config.criteria.fuelAllow[0])]
-  if (!fuel) throw new Error(`Auti.hr ne podržava gorivo "${config.criteria.fuelAllow[0]}"`)
+// Njihov URL nosi jedno gorivo, pa se za svako gorivo iz configa ide zasebnim upitom.
+function searchUrl(config, make, fuelName) {
+  const fuel = FUEL_SLUGS[normalize(fuelName)]
+  if (!fuel) throw new Error(`Auti.hr ne podržava gorivo "${fuelName}"`)
 
   const parts = [`marka/${MAKE_SLUGS[normalize(make)] ?? normalize(make)}`, `vrsta-goriva/${fuel}`]
   parts.push(`godina-proizvodnje/${config.criteria.yearMin}-${new Date().getFullYear() + 1}`)
@@ -119,8 +120,10 @@ export async function fetchListings(config, { isSeen = () => false } = {}) {
   let matched = 0
   let known = 0
 
-  for (const make of makes) {
-    const url = searchUrl(config, make)
+  const urls = makes.flatMap((make) =>
+    config.criteria.fuelAllow.map((fuel) => searchUrl(config, make, fuel)),
+  )
+  for (const url of urls) {
     // Nepoznat slug marke njihova tražilica tiho ignorira i vrati sve marke, pa se svaki
     // oglas mora potvrditi po marki i modelu — ne vjeruje se da je odgovor već filtriran.
     for (const card of parseCards(await getHtml(url, { referer: BASE }))) {

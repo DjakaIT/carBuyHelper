@@ -172,8 +172,11 @@ function toListing(ad, fuel) {
 
 export async function fetchListings(config, { isSeen = () => false } = {}) {
   const vehicleIds = await loadVehicleIds(config.models);
+  // Lista ne nosi gorivo; poznato je samo kad se traži jedno.
   const fuel =
-    FUEL_LABELS[FUEL_IDS[normalize(config.criteria.fuelAllow[0])]] ?? null;
+    config.criteria.fuelAllow.length === 1
+      ? (FUEL_LABELS[FUEL_IDS[normalize(config.criteria.fuelAllow[0])]] ?? null)
+      : null;
 
   const listings = [];
   const prices = [];

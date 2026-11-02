@@ -5,15 +5,30 @@ import * as autokatalog from './sources/autokatalog.js'
 import * as autoscout24 from './sources/autoscout24.js'
 import * as facebook from './sources/facebook.js'
 import * as indexOglasi from './sources/index-oglasi.js'
+import * as kleinanzeigen from './sources/kleinanzeigen.js'
 import * as njuskalo from './sources/njuskalo.js'
+import * as oglasnik from './sources/oglasnik.js'
 
-const SOURCES = [indexOglasi, autokatalog, autiHr, autoscout24, njuskalo, facebook]
+const SOURCES = [indexOglasi, autokatalog, autiHr, oglasnik, autoscout24, kleinanzeigen, njuskalo, facebook]
 
 // Dio salona označi karavan kao limuzinu ili SUV, pa filter na izvoru propusti "Octavia Kombi".
 // Ove riječi kod praćenih modela znače karavan i ništa drugo.
 const WAGON_WORDS = /(^|[^a-z])(kombi|combi|variant|avant|karavan|touring|estate|break)([^a-z]|$)/i
 
 const isWagon = (listing) => WAGON_WORDS.test(listing.title)
+
+// Zapremina iz naslova ("1.0 TSI", "2,0 TFSI") hvata izvore koji je ne filtriraju na svojoj
+// strani. Oglas bez ikakvog podatka o motoru ostaje — ne zna se da je premalen.
+// Iza broja smije doći zarez ili točka ("1,3, 2020g"), ali ne još znamenki ("1.500", "2.2023").
+const DISPLACEMENT = /(?<![\d.,])([1-6])[.,](\d)(?!\d|[.,]\d)/
+
+function engineCcm(listing) {
+  if (listing.engineCcm) return listing.engineCcm
+  const match = listing.title.match(DISPLACEMENT)
+  return match ? Number(match[1]) * 1000 + Number(match[2]) * 100 : null
+}
+
+const isTooSmall = (listing, minCcm) => minCcm != null && (engineCcm(listing) ?? minCcm) < minCcm
 
 /** Izvor koji ne pokriva nijednu traženu državu nema smisla ni otvarati. */
 const covers = (source, countries) =>
@@ -26,8 +41,9 @@ async function runSource(db, source, config) {
     settings: config.sources[source.id],
   })
   const allowWagons = config.criteria.bodyTypes?.includes('karavan')
-  const wanted = listings.filter((listing) => allowWagons || !isWagon(listing))
-  const mislabelled = listings.length - wanted.length
+  const wagons = listings.filter((listing) => !allowWagons && isWagon(listing))
+  const small = listings.filter((listing) => isTooSmall(listing, config.criteria.engineMinCcm))
+  const wanted = listings.filter((listing) => !wagons.includes(listing) && !small.includes(listing))
 
   // Oglasi stranih prodavača s hrvatskih portala se spremaju; u sučelju ih filtar država
   // pokazuje ili skriva bez novog dohvata.
@@ -46,7 +62,8 @@ async function runSource(db, source, config) {
     `${inserted} novih spremljeno`,
     `${repriced} promjena cijene`,
   ]
-  if (mislabelled > 0) notes.push(`${mislabelled} krivo označenih karavana odbačeno`)
+  if (wagons.length > 0) notes.push(`${wagons.length} krivo označenih karavana odbačeno`)
+  if (small.length > 0) notes.push(`${small.length} s motorom ispod ${config.criteria.engineMinCcm} cm³ odbačeno`)
   if (foreign > 0) notes.push(`${foreign} iz drugih država (vidljivo na filtar)`)
   console.log(`${source.label}: ${notes.join(', ')}`)
 }

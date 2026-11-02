@@ -1,8 +1,9 @@
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadConfig } from './config.js'
 import { openDb, priceHistory } from './db.js'
+import { geocoder, roadKm } from './geo.js'
 
 const OUT_PATH = fileURLToPath(
   new URL('../public/data/listings.json', import.meta.url),
@@ -21,6 +22,8 @@ function excerpt(description) {
 }
 
 const config = loadConfig()
+// Parametri troška uvoza i puta idu u snapshot; sučelje ih ne čita iz repoa.
+const costs = JSON.parse(readFileSync(new URL('../config/import.json', import.meta.url), 'utf8'))
 
 const normalize = (value) =>
   (value ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
@@ -62,6 +65,17 @@ const rows = db
   .all()
 db.close()
 
+const geo = geocoder()
+const home = [costs.home.lat, costs.home.lon]
+const distances = new Map()
+for (const row of rows) {
+  const key = `${row.country}|${row.location}`
+  if (distances.has(key)) continue
+  const point = await geo.locate(row.location, row.country)
+  distances.set(key, point ? roadKm(home, point, costs.roadFactor) : null)
+}
+geo.save()
+
 const listings = rows.map((row) => {
   const id = `${row.source_id}:${row.external_id}`
   const prices = history.get(id) ?? []
@@ -81,6 +95,7 @@ const listings = rows.map((row) => {
     mileage: row.mileage,
     fuel: row.fuel,
     location: row.location,
+    distanceKm: distances.get(`${row.country}|${row.location}`),
     image: row.image_url,
     postedAt: row.posted_at,
     firstSeenAt: row.first_seen_at,
@@ -93,6 +108,7 @@ writeFileSync(
   OUT_PATH,
   JSON.stringify({ generatedAt: new Date().toISOString(), criteria: config.criteria,
     outbound: config.outbound ?? {},
+    costs,
     models: config.models,
     listings,
   }),

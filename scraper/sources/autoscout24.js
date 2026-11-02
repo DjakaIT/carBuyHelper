@@ -17,7 +17,8 @@ const DEFAULT_MAX_PAGES = 2
 
 const BODY_CODES = { limuzina: 6, suv: 4, coupe: 3, hatchback: 1, karavan: 5, kabriolet: 2, monovolumen: 7 }
 
-const FUEL_CODES = { benzin: 'B', dizel: 'D', diesel: 'D', elektricni: 'E', struja: 'E' }
+// '2' je njihov "Electric/Gasoline" — hibrid s benzinskim motorom.
+const FUEL_CODES = { benzin: 'B', hibrid: '2', dizel: 'D', diesel: 'D', elektricni: 'E', struja: 'E' }
 const FUEL_LABELS = {
   Gasoline: 'Benzin',
   Diesel: 'Diesel',
@@ -55,6 +56,9 @@ function buildUrl(config, settings, make, model, page) {
   }
   if (config.criteria.mileageMax != null) {
     params.set('kmto', String(config.criteria.mileageMax))
+  }
+  if (config.criteria.engineMinCcm != null) {
+    params.set('ccmfrom', String(config.criteria.engineMinCcm))
   }
   for (const name of config.criteria.bodyTypes ?? []) {
     const code = BODY_CODES[normalize(name)]

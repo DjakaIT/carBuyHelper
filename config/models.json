@@ -1,12 +1,15 @@
 {
   "criteria": {
     "fuelAllow": [
-      "benzin"
+      "benzin",
+      "hibrid"
     ],
     "countries": [
-      "HR"
+      "HR",
+      "DE"
     ],
     "yearMin": 2020,
+    "engineMinCcm": 1450,
     "priceMax": 23000,
     "mileageMax": 93000,
     "bodyTypes": [
@@ -127,6 +130,15 @@
     },
     "njuskalo": {
       "enabled": true
+    },
+    "oglasnik": {
+      "enabled": true,
+      "maxPages": 4
+    },
+    "kleinanzeigen": {
+      "enabled": true,
+      "maxPagesPerMake": 3,
+      "minPowerPs": 120
     },
     "facebook": {
       "enabled": false,

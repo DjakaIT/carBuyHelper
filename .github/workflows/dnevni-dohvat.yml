@@ -64,7 +64,7 @@ jobs:
         run: |
           git config user.name 'autoradar'
           git config user.email 'autoradar@users.noreply.github.com'
-          git add data/autoradar.sqlite public/data/listings.json
+          git add data/autoradar.sqlite data/geocode.json public/data/listings.json
           if git diff --staged --quiet; then
             echo 'Nema promjena za spremiti.'
           else

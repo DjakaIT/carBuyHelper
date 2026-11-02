@@ -87,6 +87,8 @@ function toListing(vehicle) {
     imageUrl: vehicle.imageUrl ?? null,
     gallery: vehicle.imageUrl ? [vehicle.imageUrl] : [],
     postedAt: null,
+    // Stiže kao "1490 ccm", "1332 cm3" ili "1490".
+    engineCcm: Number.parseInt(vehicle.displacement, 10) || null,
   }
 }
 

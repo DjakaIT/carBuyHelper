@@ -8,9 +8,6 @@ const API = `${BASE}/api`
 const CATEGORY_PATH = '/auto-moto/osobni-automobili'
 const SEARCH_PAGE = BASE + CATEGORY_PATH
 
-// Datoteka s markama/modelima automobila; Index ih poslužuje zajedno s motociklima i ostalim.
-const CAR_MAKE_DATA_ID = '388b1099-36a4-427a-b4a4-9ed39e14da46'
-
 // Šifre goriva iz search configa Indexa (advancedSearch.json, kontrola "fuelIds").
 const FUEL_BY_ID = {
   1: 'Diesel',
@@ -49,46 +46,28 @@ const normalize = (value) =>
 
 const api = (path) => getJson(`${API}${path}`, { sessionUrl: SEARCH_PAGE, referer: SEARCH_PAGE })
 
+// Od 11/2026 marke stoje na /configuration/makes (stari /configuration/datasource/* vraća 404).
 async function loadModels(models) {
-  const datasets = await api('/configuration/datasource/make')
-  const makes = datasets.find((d) => d.dataId === CAR_MAKE_DATA_ID)?.source
-  if (!makes) throw new Error('Index: datasource marki ne sadrži skup za automobile')
+  const makes = await api('/configuration/makes?category=car')
 
-  // Oglas nosi samo ID-jeve marke i modela, pa se uz njih pamte i imena za prikaz.
-  const names = new Map()
-  for (const makeEntry of makes) {
-    names.set(makeEntry.id, makeEntry.name)
-    for (const modelEntry of makeEntry.children ?? []) names.set(modelEntry.id, modelEntry.name)
-  }
-
-  const ids = models.map(({ make, model }) => {
+  return models.map(({ make, model }) => {
     const makeEntry = makes.find((m) => normalize(m.name) === normalize(make))
     if (!makeEntry) throw new Error(`Index ne poznaje marku "${make}"`)
-    const modelEntry = (makeEntry.children ?? []).find(
-      (m) => normalize(m.name) === normalize(model),
-    )
+    const modelEntry = (makeEntry.models ?? []).find((m) => normalize(m.name) === normalize(model))
     if (!modelEntry) throw new Error(`Index ne poznaje model "${make} ${model}"`)
     return modelEntry.id
   })
-
-  return { ids, names }
 }
 
-async function loadPlaces() {
-  const datasets = await api('/configuration/datasource/location')
-  const names = new Map()
-  const countryCodes = new Map()
-
-  const walk = (nodes, isRoot) => {
-    for (const node of nodes ?? []) {
-      names.set(node.id, node.name)
-      if (isRoot && node.countryCode) countryCodes.set(node.id, node.countryCode)
-      walk(node.children, false)
-    }
-  }
-  for (const dataset of datasets) walk(dataset.source, true)
-  return { names, countryCodes }
-}
+// Oglas sad nosi naziv države ("NJEMAČKA"), ne oznaku; oznaka se dobije obrnuto iz hrvatskih
+// naziva država koje zna i sam Intl.
+const regionNames = new Intl.DisplayNames(['hr'], { type: 'region' })
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+const COUNTRY_CODES = new Map(
+  [...LETTERS].flatMap((a) => [...LETTERS].map((b) => a + b))
+    .map((code) => [normalize(regionNames.of(code) ?? ''), code])
+    .filter(([name, code]) => name !== normalize(code)),
+)
 
 function buildSearchParams(config, modelIds) {
   const params = new URLSearchParams({
@@ -102,6 +81,9 @@ function buildSearchParams(config, modelIds) {
   }
   if (config.criteria.mileageMax != null) {
     params.set('mileageTo', String(config.criteria.mileageMax))
+  }
+  if (config.criteria.engineMinCcm != null) {
+    params.set('cubicCapacityFrom', String(config.criteria.engineMinCcm))
   }
   for (const name of config.criteria.bodyTypes ?? []) {
     const bodyId = BODY_IDS[normalize(name)]
@@ -117,23 +99,14 @@ function buildSearchParams(config, modelIds) {
   return params
 }
 
-// Oglas bez odabrane lokacije nosi nule umjesto ID-a; dio oglašivača (često inozemni saloni)
-// navede samo županiju ili državu, pa se ide redom od najužeg prema najširem.
-const EMPTY_ID = '00000000-0000-0000-0000-000000000000'
+// Dio oglašivača (često inozemni saloni) navede samo županiju ili državu, pa se ide redom od
+// najužeg prema najširem.
+const placeName = (ad) => ad.cityName || ad.settlementName || ad.countyName || ad.countryName || null
 
-function placeName(placeNames, ...ids) {
-  for (const id of ids) {
-    if (!id || id === EMPTY_ID) continue
-    const name = placeNames.get(id)
-    if (name) return name
-  }
-  return null
-}
-
-function toListing(ad, places, names) {
+function toListing(ad) {
   const images = ad.images ?? []
   const gallery = images.map((image) => `${API}/image/direct/${image}`)
-  const place = placeName(places.names, ad.cityId, ad.settlementId, ad.countyId, ad.countryId)
+  const place = placeName(ad)
 
   return {
     sourceId: id,
@@ -143,9 +116,9 @@ function toListing(ad, places, names) {
     sellerType: ad.legalEntity === 2 ? 'salon' : ad.legalEntity === 1 ? 'privatno' : null,
     sellerName: null,
     bodyType: BODY_LABELS[ad.vehicleBodyType] ?? null,
-    country: places.countryCodes.get(ad.countryId) ?? null,
-    make: names.get(ad.makeId) ?? null,
-    model: names.get(ad.modelId) ?? null,
+    country: COUNTRY_CODES.get(normalize(ad.countryName ?? '')) ?? null,
+    make: ad.makeName ?? null,
+    model: ad.modelName ?? null,
     description: ad.description ?? null,
     price: ad.price ?? null,
     year: ad.makeYear ? Number(ad.makeYear.slice(0, 4)) : null,
@@ -164,7 +137,7 @@ function toListing(ad, places, names) {
  * samo za oglase koje `isSeen` ne prepozna.
  */
 export async function fetchListings(config, { isSeen = () => false } = {}) {
-  const { ids: modelIds, names } = await loadModels(config.models)
+  const modelIds = await loadModels(config.models)
   const params = buildSearchParams(config, modelIds)
 
   const newAdCodes = []
@@ -191,12 +164,11 @@ export async function fetchListings(config, { isSeen = () => false } = {}) {
 
   if (newAdCodes.length === 0) return { listings: [], prices, matched, known }
 
-  const places = await loadPlaces()
   const listings = []
   for (const code of newAdCodes) {
     const result = await api(`/aditem/single-ad?code=${code}`)
     const ad = result.data?.[0]
-    if (ad) listings.push(toListing(ad, places, names))
+    if (ad) listings.push(toListing(ad))
   }
 
   return { listings, prices, matched, known }

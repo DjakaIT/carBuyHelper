@@ -179,6 +179,18 @@ main {
   color: #10130f;
 }
 
+.chip[data-source='oglasnik'][aria-pressed='true'] {
+  background: var(--source-oglasnik);
+  border-color: var(--source-oglasnik);
+  color: #fff;
+}
+
+.chip[data-source='kleinanzeigen'][aria-pressed='true'] {
+  background: var(--source-kleinanzeigen);
+  border-color: var(--source-kleinanzeigen);
+  color: #10130f;
+}
+
 .filters-count {
   margin: 0 0 7px auto;
   color: var(--muted);
@@ -261,6 +273,90 @@ main {
 
 .row[data-source='njuskalo']::before {
   background: var(--source-njuskalo);
+}
+
+.row[data-source='oglasnik']::before {
+  background: var(--source-oglasnik);
+}
+
+.row[data-source='kleinanzeigen']::before {
+  background: var(--source-kleinanzeigen);
+}
+
+/* Trošak do Zadra: sklopljen je jedna linija ispod specifikacija, otvoren je račun. */
+.row-cost {
+  grid-column: 3 / -1;
+  margin-top: 6px;
+  font-size: 12.5px;
+}
+
+.row-cost summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.row-cost summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.row-cost-total {
+  color: var(--ink);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.row-cost-extra {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-cost table {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 8px;
+  border-collapse: collapse;
+}
+
+.row-cost th,
+.row-cost td {
+  padding: 5px 0;
+  border-top: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+.row-cost th {
+  font-weight: 400;
+  text-align: left;
+}
+
+.row-cost th small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.row-cost td {
+  padding-left: 16px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.row-cost p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+.row-cost-links a {
+  margin-right: 12px;
+  color: var(--ink);
 }
 
 .row-pos {
@@ -461,7 +557,8 @@ main {
     grid-template-areas:
       'image main'
       'specs specs'
-      'price delta';
+      'price delta'
+      'cost cost';
     gap: 8px 12px;
     padding: 14px 0 14px 12px;
   }
@@ -513,6 +610,11 @@ main {
   .row-delta {
     grid-area: delta;
     align-self: end;
+  }
+
+  .row-cost {
+    grid-area: cost;
+    margin-top: 0;
   }
 
   .masthead {

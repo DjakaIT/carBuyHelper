@@ -55,6 +55,9 @@ function validate(config, path) {
   if (criteria.mileageMax != null && !Number.isInteger(criteria.mileageMax)) {
     fail('"criteria.mileageMax" mora biti cijeli broj ili izostavljen')
   }
+  if (criteria.engineMinCcm != null && !Number.isInteger(criteria.engineMinCcm)) {
+    fail('"criteria.engineMinCcm" mora biti cijeli broj (cm³) ili izostavljen')
+  }
   if (criteria.bodyTypes != null && !Array.isArray(criteria.bodyTypes)) {
     fail('"criteria.bodyTypes" mora biti niz ili izostavljen')
   }

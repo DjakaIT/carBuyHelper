@@ -172,6 +172,7 @@ export default function App() {
                       position={index + 1}
                       standing={standing(listing, market)}
                       now={now}
+                      costs={data.costs}
                       fresh={isFresh(listing.firstSeenAt, now)}
                       newSinceVisit={
                         lastVisit > 0 && new Date(listing.firstSeenAt).getTime() > lastVisit

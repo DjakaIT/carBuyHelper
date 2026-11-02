@@ -1,10 +1,52 @@
 import { formatAge, formatKm, formatPrice } from '../lib/format.js'
 import { priceDrop } from '../lib/filter.js'
+import { landedCost, travelLinks } from '../lib/importCost.js'
 import { sourceLabel } from '../lib/sources.js'
 
 const percent = new Intl.NumberFormat('hr-HR', { style: 'percent', maximumFractionDigits: 0 })
 
-export default function Listing({ listing, position, standing, fresh, newSinceVisit, now }) {
+function Cost({ listing, costs, now }) {
+  const cost = landedCost(listing, costs, new Date(now))
+  if (!cost) return null
+  const links = travelLinks(listing, costs)
+  const abroad = listing.country && listing.country !== 'HR'
+
+  return (
+    <details className="row-cost">
+      <summary>
+        <span className="row-cost-label">{abroad ? 'S uvozom, u Zadru' : 'Do Zadra'}</span>
+        <span className="row-cost-total">≈ {formatPrice(cost.total)}</span>
+        <span className="row-cost-extra">+{formatPrice(cost.extra)}</span>
+      </summary>
+      <table>
+        <tbody>
+          {cost.items.map((item) => (
+            <tr key={item.label}>
+              <th scope="row">
+                {item.label}
+                {item.note && <small>{item.note}</small>}
+              </th>
+              <td>{formatPrice(item.amount)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {!cost.tripKnown && <p>Mjesto nije pronađeno na karti, pa put nije uračunat.</p>}
+      {links.length > 0 && (
+        <p className="row-cost-links">
+          Kako doći iz Zadra:{' '}
+          {links.map((link) => (
+            <a key={link.label} href={link.href} target="_blank" rel="noreferrer">
+              {link.label}
+            </a>
+          ))}
+        </p>
+      )}
+    </details>
+  )
+}
+
+export default function Listing({ listing, position, standing, fresh, newSinceVisit, now, costs }) {
   const className = ['row', fresh && 'is-fresh', newSinceVisit && 'is-new'].filter(Boolean).join(' ')
   const drop = priceDrop(listing)
 
@@ -81,6 +123,8 @@ export default function Listing({ listing, position, standing, fresh, newSinceVi
           <span className="row-delta-value row-delta-value--none">—</span>
         )}
       </p>
+
+      <Cost listing={listing} costs={costs} now={now} />
     </li>
   )
 }

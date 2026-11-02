@@ -1,12 +1,12 @@
 # AutoRadar
 
-Osobni agregator oglasa rabljenih automobila. Jednom dnevno pokupi nove oglase prema fiksnim kriterijima (benzin, godište 2020+, allowlist modela), spremi ih i prikaže u dashboardu s filterima.
+Osobni agregator oglasa rabljenih automobila. Jednom dnevno pokupi nove oglase prema fiksnim kriterijima (benzin ili hibrid, motor od 1.5, godište 2020+, allowlist modela), spremi ih i prikaže u dashboardu s filterima. Ispod svakog oglasa stoji procjena ukupnog troška do Zadra (PPMV, pristojbe, registracija, put) i linkovi za prijevoz po auto.
 
 Specifikacija i pravila rada: [CLAUDE.md](CLAUDE.md). Donesene odluke: [DECISIONS.md](DECISIONS.md).
 
 ## Države
 
-Zadano se dohvaća samo Hrvatska (`criteria.countries: ["HR"]`). Dopisivanjem oznake (`SI`, `BA`,
+Zadano se dohvaćaju Hrvatska i Njemačka (`criteria.countries: ["HR", "DE"]`). Dopisivanjem oznake (`SI`, `BA`,
 `DE`, `AT`…) uključuje se ta država: izvori koji je pokrivaju tada se sami uključe, a u sučelju se
 pojavi filtar država. Dok je uključena samo jedna država, tog filtra nema.
 
@@ -17,7 +17,9 @@ pojavi filtar država. Dok je uključena samo jedna država, tog filtra nema.
 | Index oglasi | radi — puni podaci s opisom |
 | AutoKatalog | radi — samo registrirane hrvatske autokuće, link vodi na salon |
 | Auti.hr | radi — hrvatski portal; model se prosijava lokalno jer ga njihova tražilica ignorira |
-| AutoScout24 | radi, ali uz zadane postavke miruje: pokriva D/A/B/E/F/I/L/NL, a traži se samo Hrvatska |
+| Plavi oglasnik | radi — hrvatski portal; filtrira se lokalno jer njihovi URL filteri nisu poznati |
+| Kleinanzeigen | radi — njemački mali oglasi, filteri na izvoru |
+| AutoScout24 | radi za Njemačku (pokriva D/A/B/E/F/I/L/NL) |
 | Njuškalo | modul napisan, ali njihova bot-zaštita blokira ovaj IP (vidi DECISIONS.md) |
 | Facebook Marketplace | radi uz jednokratnu prijavu: `npm run facebook:login`, pa `enabled: true` u configu |
 | mobile.de | blokira već prvi zahtjev; ide preko email alerta (vidi TODO.md) |
@@ -48,6 +50,7 @@ npm run lint
 
 ```
 config/models.json      kriteriji pretrage (marke/modeli, gorivo, godište, izvori)
+config/import.json      parametri troška uvoza i puta do Zadra (PPMV tablice, pristojbe, cestarine)
 scraper/run.js          ulazna točka dnevnog posla
 scraper/config.js       učitavanje i validacija configa
 scraper/http.js         HTTP klijent (sesija, throttle, retry)
@@ -55,6 +58,7 @@ scraper/db.js           SQLite shema i spremanje
 scraper/sources/        jedan modul po izvoru oglasa
 scraper/export.js       SQLite -> public/data/listings.json
 data/autoradar.sqlite   baza spremljenih oglasa (u repou)
+data/geocode.json       zapamćene koordinate mjesta iz oglasa
 src/                    React dashboard
 ```
 

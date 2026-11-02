@@ -4,6 +4,8 @@ export const SOURCE_LABELS = {
   njuskalo: 'Njuškalo',
   autokatalog: 'AutoKatalog',
   'auti-hr': 'Auti.hr',
+  oglasnik: 'Plavi oglasnik',
+  kleinanzeigen: 'Kleinanzeigen',
   facebook: 'Facebook',
 }
 
