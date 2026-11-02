@@ -190,7 +190,7 @@ Time stupac "delta" nosi stvarnu informaciju (je li ovo dobra cijena za taj mode
 
 - **Gorivo je benzin ili hibrid** (`fuelAllow: ["benzin", "hibrid"]`), na zahtjev vlasnika. Plug-in hibridi nisu namjerno traženi; AutoScout24 ih ipak ima pod istom šifrom (`2`, "Electric/Gasoline"), a filtar zapremine ionako izbaci 1.4 TSI iV.
 - **Motor najmanje 1.5** (`engineMinCcm: 1450`, da prođu i 1.498 cm³). Na izvoru se filtrira gdje izvor to prima — Index `cubicCapacityFrom`, AutoScout24 `ccmfrom` (oba provjerena usporedbom broja rezultata) — a za ostale se zapremina čita iz strukturiranog podatka (AutoKatalog `displacement`, Plavi oglasnik `vehicle_engine_capacity`) ili iz naslova ("1.0 TSI", "1,3 DIG-T"). Oglas bez ikakvog podatka o motoru ostaje.
-- **Postojeća 50 oglasa ispod 1.5 obrisana su iz baze jednokratno** (T-Roc 1.0 TSI, Qashqai 1.3, Octavia 1.0), kao ranije kod granice kilometraže.
+- **Postojećih 199 od 248 oglasa ispod 1.5 obrisano je iz baze jednokratno** (159 × 1.3, gotovo sve Qashqai; 40 × 1.0, T-Roc i Octavia), po zapremini iz naslova, kao ranije kod granice kilometraže.
 - **Njemačka je uključena u `criteria.countries`.** Time se otvaraju Kleinanzeigen i AutoScout24 (samo `D`), a Indexovi njemački saloni postaju vidljivi bez klika na filtar.
 
 **Izvori**
